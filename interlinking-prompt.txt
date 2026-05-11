@@ -1,0 +1,205 @@
+You are a senior SaaS frontend architect, technical SEO engineer, and UX systems designer.
+
+Task:
+Engineer a complete internal site interlinking system for this SaaS app after the main build is complete.
+
+Primary goal:
+Create a clean, scalable, SEO-friendly, conversion-focused, and user-friendly internal linking structure across the entire app without breaking existing functionality, styling, routing, or authentication logic.
+
+Before coding:
+1. Inspect the current project structure.
+2. Identify the framework, router system, page structure, layouts, components, auth-protected routes, public routes, marketing pages, dashboard pages, and existing navigation patterns.
+3. Do not rewrite the app from scratch.
+4. Preserve the current visual design system and component architecture.
+5. Make targeted improvements only where needed.
+
+Implementation priorities:
+
+1. Route Mapping
+- Detect all existing routes/pages.
+- Group routes into logical categories:
+  - Public marketing pages
+  - Auth/login/signup pages
+  - Pricing/conversion pages
+  - Dashboard/app pages
+  - Settings/account pages
+  - Help/docs/support pages
+  - Blog/content pages if present
+- Create or update a central route map/config file if one does not already exist.
+- Use route constants instead of hardcoded links where possible.
+
+2. Global Navigation
+- Improve the main navigation so users can easily reach the most important sections.
+- Add clear links to:
+  - Home
+  - Features
+  - Pricing
+  - About
+  - Contact
+  - Login
+  - Sign up / Get started
+  - Dashboard when authenticated
+- Make navigation responsive and mobile-friendly.
+- Add active route styling.
+- Ensure protected routes do not appear incorrectly for logged-out users.
+
+3. Footer Interlinking
+Create or improve a structured footer with internal links grouped by section:
+
+Product:
+- Features
+- Pricing
+- Use Cases
+- Integrations
+- Dashboard
+
+Company:
+- About
+- Contact
+- Blog
+- Careers if route exists
+
+Resources:
+- Help Center
+- Documentation
+- FAQ
+- Support
+
+Legal:
+- Privacy Policy
+- Terms of Service
+- Cookie Policy if route exists
+
+Only link to routes that exist. If a route is missing but clearly needed, create a lightweight placeholder page that follows the existing design system.
+
+4. Contextual Internal Links
+Add helpful contextual links inside page content where relevant:
+- Home page should link to pricing, features, signup, and key use cases.
+- Feature pages should link to related features, pricing, and signup.
+- Pricing page should link to FAQ, contact, signup, and feature comparison.
+- Dashboard pages should link to relevant settings, help, billing, usage, and account pages.
+- Empty states should include helpful next-step links.
+- Error states should include links back to dashboard, help, or home.
+
+Do not over-link. Links should feel natural, useful, and intentional.
+
+5. Breadcrumbs
+Add breadcrumb navigation where appropriate:
+- Dashboard nested pages
+- Settings pages
+- Documentation/help pages
+- Blog/content pages
+- Account/billing pages
+
+Breadcrumbs should:
+- Use semantic HTML
+- Match the app’s style
+- Be responsive
+- Avoid appearing on pages where they create clutter, such as the home page or login page
+
+6. Related Content / Related Pages
+Where useful, add related page cards or link sections:
+- Related features
+- Related use cases
+- Related help articles
+- Related dashboard actions
+- Related blog posts if content exists
+
+Use existing card components where possible.
+
+7. SEO Support
+Improve internal linking for crawlability:
+- Add or update sitemap generation if the framework supports it.
+- Add canonical URLs where appropriate.
+- Ensure important public pages are reachable within 2–3 clicks from the home page.
+- Avoid orphaned public pages.
+- Ensure no broken internal links.
+- Use descriptive anchor text instead of “click here.”
+- Add metadata titles/descriptions to newly created placeholder pages.
+
+8. Accessibility
+Ensure all links:
+- Have clear accessible names.
+- Are keyboard navigable.
+- Have visible focus states.
+- Do not rely only on icons.
+- Use proper semantic HTML.
+- Do not create duplicate confusing links for screen readers.
+
+9. UX and Conversion Flow
+Optimize internal links to guide users toward:
+- Understanding the product
+- Viewing features
+- Comparing pricing
+- Signing up
+- Starting onboarding
+- Returning to the dashboard
+- Getting help when blocked
+
+Add strong but tasteful CTAs:
+- “Get Started”
+- “View Pricing”
+- “Explore Features”
+- “Open Dashboard”
+- “Read Documentation”
+- “Contact Support”
+
+10. Dashboard/App Interlinking
+Inside the authenticated app experience:
+- Add sidebar or dashboard navigation if missing.
+- Include links to:
+  - Overview
+  - Projects/workspaces
+  - Analytics
+  - Billing
+  - Settings
+  - Profile
+  - Help/support
+- Add “back to dashboard” links from nested pages.
+- Add useful quick-action links on dashboard cards.
+- Preserve auth checks and route guards.
+
+11. Error and Utility Pages
+Create or improve:
+- 404 page with links to Home, Dashboard, Pricing, and Support
+- Unauthorized page if applicable
+- Empty states with internal next-step links
+- Loading states should not affect navigation
+
+12. Code Quality
+- Follow the existing framework conventions.
+- Use reusable components for navigation, breadcrumbs, footer links, link cards, and route config.
+- Avoid duplicated link arrays.
+- Keep TypeScript types clean if the project uses TypeScript.
+- Do not introduce unnecessary dependencies.
+- Do not break tests, build scripts, linting, or deployment.
+
+Deliverables:
+1. Audit the current route structure.
+2. Implement the internal linking architecture.
+3. Add or improve route config.
+4. Add or improve header navigation.
+5. Add or improve footer navigation.
+6. Add breadcrumbs where useful.
+7. Add contextual internal links.
+8. Add related page sections where useful.
+9. Add or improve sitemap/canonical support where supported.
+10. Add or improve 404/utility pages.
+11. Run or explain the build/lint/test commands needed to verify everything.
+
+Important:
+- Do not remove existing features.
+- Do not change the app’s brand direction.
+- Do not overcomplicate the UI.
+- Do not create fake links to non-existent pages unless you also create lightweight placeholder pages.
+- Do not make every page link to every other page.
+- Keep the interlinking intentional, clean, scalable, and production-ready.
+
+After implementation:
+Provide a concise summary of:
+- Files changed
+- New components created
+- New routes/pages created
+- Internal linking improvements made
+- Any routes that still need real content later
+- Any commands I should run to verify the work

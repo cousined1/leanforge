@@ -1,0 +1,226 @@
+You are updating this website/application to include **production-grade SEO, structured data, trust pages, and legal/compliance site architecture**. Treat this as a first-class deliverable, not as filler pages added at the end. The output must improve crawlability, search appearance, entity trust, footer trust signals, and business legitimacy. [perplexity](https://www.perplexity.ai/search/bdaf109e-6af1-490c-9c81-dc9e0ae8ac50)
+
+### Mission
+Implement the following as a coordinated SEO + trust + compliance layer:
+- Technical SEO foundations.
+- JSON-LD structured data using Google-preferred patterns.
+- Rich snippet support where eligible.
+- About Us page.
+- Contact page.
+- Privacy Policy page.
+- Terms of Service / Terms & Conditions page.
+- Cookie Policy page.
+- Disclaimer page if the site publishes advice, compliance guidance, audits, scores, recommendations, or informational content.
+- Footer legal/trust block across the full site.
+- Cookie consent flow as a default requirement. [perplexity](https://www.perplexity.ai/search/b71dbd20-da26-428a-bd42-21a5e8728b41)
+
+### Business identity to use
+Use this business/contact information consistently in footer, legal pages, structured data, and contact surfaces unless the existing project already has more specific brand-level data:
+- Business name: Developer312
+- Legal note: Developer312 is a subsidiary of NIGHT LITE USA LLC.
+- Email: hello@developer312.com
+- Phone: (510) 401-1225
+- Phone link: tel:+15104011225 [perplexity](https://www.perplexity.ai/search/a79d32c9-8bc7-4ed6-9ea3-301f687835ed)
+
+### Footer block requirement
+Add a persistent footer block site-wide. It should include:
+- Copyright line with current year.
+- Developer312.
+- “Developer312 is a subsidiary of NIGHT LITE USA LLC.”
+- Email link: hello@developer312.com
+- Phone link: (510) 401-1225
+- Links to About, Contact, Privacy Policy, Terms of Service, Cookie Policy, and any other required legal pages.
+- If the site is SaaS or collects leads, include a short trust line such as: “Compliance, privacy, and transparency matter to how we build.” [perplexity](https://www.perplexity.ai/search/963fb1dc-08f0-4a8e-8771-baa5d895b4a0)
+
+Example footer content to implement cleanly in the site’s design system:
+- Developer312
+- Developer312 is a subsidiary of NIGHT LITE USA LLC.
+- hello@developer312.com | (510) 401-1225
+- About | Contact | Privacy | Terms | Cookies  [perplexity](https://www.perplexity.ai/search/a79d32c9-8bc7-4ed6-9ea3-301f687835ed)
+
+## SEO requirements
+
+### 1. Core technical SEO
+Implement or verify:
+- Unique `<title>` and meta description for every indexable page.
+- Canonical URL tags on all canonical pages.
+- Clean heading hierarchy with exactly one meaningful H1 per page.
+- Open Graph and Twitter/X meta tags for major public pages.
+- Sitemap generation or sitemap.xml support.
+- robots.txt with sensible crawl directives.
+- Internal links between marketing pages, legal pages, and high-value product pages.
+- Descriptive anchor text, not generic “click here”.
+- Clean semantic HTML and accessible navigation.
+- Fast-loading pages, lazy-loaded non-critical images, explicit width/height on media, and no broken links. [perplexity](https://www.perplexity.ai/search/bdaf109e-6af1-490c-9c81-dc9e0ae8ac50)
+
+### 2. JSON-LD structured data
+Use JSON-LD in the `<head>` or equivalent framework metadata implementation. Google recommends JSON-LD for structured data, so prefer it over microdata unless the stack forces otherwise. [perplexity](https://www.perplexity.ai/search/69232a80-3c55-4fc7-9297-07f45ad4672c)
+
+Implement the structured data types that fit the site:
+
+#### Always include when applicable
+- Organization
+- WebSite
+- WebPage
+- BreadcrumbList
+- AboutPage for About page
+- ContactPage for Contact page [perplexity](https://www.perplexity.ai/search/69232a80-3c55-4fc7-9297-07f45ad4672c)
+
+#### Add when applicable to the business model
+- SoftwareApplication for SaaS/app product pages.
+- Product for productized software pages with pricing/features.
+- FAQPage only where there is a real visible FAQ section on the page.
+- Article or BlogPosting for articles/resources.
+- LocalBusiness only if the site is truly representing a local business footprint in a way that matches public business details.
+- Service for service pages if the site sells services rather than software. [perplexity](https://www.perplexity.ai/search/69232a80-3c55-4fc7-9297-07f45ad4672c)
+
+### 3. Rich snippets support
+Add structured data only where the on-page visible content supports it. Do not spam schema types that do not match the rendered page. Rich snippet eligibility should be earned through accurate markup and corresponding visible content. [perplexity](https://www.perplexity.ai/search/69232a80-3c55-4fc7-9297-07f45ad4672c)
+
+Examples:
+- FAQ schema only on pages with visible FAQ questions and answers.
+- Breadcrumb schema only where breadcrumb navigation or clear site hierarchy exists.
+- SoftwareApplication schema on product/app pages with clear app name, description, operating context, offers if available, and publisher/organization.
+- Review/AggregateRating schema only if the site genuinely displays compliant first-party review content. Do not fabricate ratings. [perplexity](https://www.perplexity.ai/search/69232a80-3c55-4fc7-9297-07f45ad4672c)
+
+## Required page set
+
+### About Us page
+Create or improve an About page that explains:
+- who the company is,
+- what the product/business does,
+- who it serves,
+- why it exists,
+- and the trust/compliance posture of the company. [perplexity](https://www.perplexity.ai/search/a79d32c9-8bc7-4ed6-9ea3-301f687835ed)
+
+The About page should feel credible and specific, not generic startup filler. Include the business identity block:
+- Developer312
+- Subsidiary of NIGHT LITE USA LLC
+- hello@developer312.com
+- (510) 401-1225
+
+### Contact page
+Create a Contact page that includes:
+- business email,
+- phone,
+- contact form if appropriate,
+- expected response framing if appropriate,
+- links to legal/trust pages in footer or sidebar. [perplexity](https://www.perplexity.ai/search/a79d32c9-8bc7-4ed6-9ea3-301f687835ed)
+
+### Privacy Policy
+Create a clear Privacy Policy covering as applicable:
+- what information is collected,
+- how it is collected,
+- cookies and analytics,
+- why data is processed,
+- lawful/legitimate-use framing where relevant,
+- third-party processors/services,
+- retention and security language,
+- user rights/contact route,
+- business contact identity. [perplexity](https://www.perplexity.ai/search/b71dbd20-da26-428a-bd42-21a5e8728b41)
+
+If the app is SaaS, references to analytics, authentication, payments, cookies, email delivery, hosting, and support tooling should be included when actually used by the app. Mark uncertain implementation-specific vendor names as placeholders only if they cannot be verified from the codebase. [perplexity](https://www.perplexity.ai/search/b71dbd20-da26-428a-bd42-21a5e8728b41)
+
+### Terms of Service
+Create a Terms of Service page appropriate for a SaaS, web app, or business website. Cover as applicable:
+- acceptance of terms,
+- permitted use,
+- account responsibilities,
+- billing/subscriptions if applicable,
+- intellectual property,
+- disclaimers,
+- limitation of liability,
+- termination/suspension,
+- governing-process placeholder if not specified,
+- contact information. [perplexity](https://www.perplexity.ai/search/b71dbd20-da26-428a-bd42-21a5e8728b41)
+
+### Cookie Policy
+Create a Cookie Policy that explains:
+- what cookies/trackers are used,
+- categories of cookies,
+- whether they are essential, analytics, marketing, or preference cookies,
+- how users can manage consent/preferences,
+- link back to Privacy Policy. [perplexity](https://www.perplexity.ai/search/6ca3081d-7e9d-46fa-b371-69f109b739a7)
+
+### Disclaimer page
+If the site offers audits, recommendations, legal/compliance commentary, SEO scoring, optimization scoring, forecasts, or informational guidance, create a Disclaimer page stating the content is informational and not legal, financial, or regulatory advice unless the business explicitly claims licensed professional services. [perplexity](https://www.perplexity.ai/search/239c56ad-c319-4daf-b670-b1eb30d1f853)
+
+## Cookie consent
+Include cookie consent by default across the site/app. The implementation must:
+- block non-essential analytics/marketing cookies until consent where applicable,
+- offer a first-layer reject option where required by stricter compliance expectations,
+- link to Privacy Policy and Cookie Policy,
+- avoid deceptive dark patterns. [perplexity](https://www.perplexity.ai/search/239c56ad-c319-4daf-b670-b1eb30d1f853)
+
+## Content and trust guidance
+- Do not write empty legal fluff.
+- Do not use fake testimonials, fake ratings, fake certifications, or fake review schema.
+- Do not claim legal compliance certifications unless supported.
+- Make all legal pages easy to find from footer and key flows like signup, checkout, pricing, and lead capture.
+- Ensure legal/trust pages are indexable unless there is a specific reason not to index them.
+- Keep brand voice professional, clear, and credible. [perplexity](https://www.perplexity.ai/search/239c56ad-c319-4daf-b670-b1eb30d1f853)
+
+## Internal linking
+Add internal links between:
+- homepage and About,
+- homepage and Contact,
+- footer and all legal pages,
+- relevant product pages and Privacy/Terms where signup or payment occurs,
+- resource/blog pages and relevant product/service pages where contextually appropriate. [perplexity](https://www.perplexity.ai/search/bdaf109e-6af1-490c-9c81-dc9e0ae8ac50)
+
+## Suggested JSON-LD baseline
+Implement a baseline Organization schema using the known business identity, adapted to the project’s live domain and page URLs:
+
+- name: Developer312
+- email: hello@developer312.com
+- telephone: +1-510-401-1225
+- parentOrganization or related legal note: NIGHT LITE USA LLC
+- url: use actual deployed canonical site URL
+- contactPoint: include support/general inquiry where appropriate
+
+Also implement:
+- WebSite schema for the main site.
+- WebPage schema for major pages.
+- AboutPage schema for /about.
+- ContactPage schema for /contact.
+- BreadcrumbList where page hierarchy supports it. [perplexity](https://www.perplexity.ai/search/69232a80-3c55-4fc7-9297-07f45ad4672c)
+
+If this is a SaaS product page, add SoftwareApplication schema with:
+- applicationCategory,
+- operatingSystem as appropriate,
+- name,
+- description,
+- publisher,
+- offers if public pricing exists. [perplexity](https://www.perplexity.ai/search/69232a80-3c55-4fc7-9297-07f45ad4672c)
+
+## Implementation standards
+- Use real routes/pages, not placeholders hidden from navigation.
+- Make sure footer links work.
+- Ensure all metadata is page-specific.
+- Ensure legal copy is drafted clearly and marked as business/legal draft copy if the project workflow requires later attorney review.
+- Preserve the site’s design system while making these pages feel intentional and complete. [perplexity](https://www.perplexity.ai/search/963fb1dc-08f0-4a8e-8771-baa5d895b4a0)
+
+## Deliverable
+Output the full implementation or implementation-ready code changes for:
+- footer legal block,
+- SEO metadata,
+- JSON-LD structured data,
+- About page,
+- Contact page,
+- Privacy Policy,
+- Terms of Service,
+- Cookie Policy,
+- Disclaimer if needed,
+- cookie consent component/flow,
+- sitemap/robots/canonical support. [perplexity](https://www.perplexity.ai/search/a79d32c9-8bc7-4ed6-9ea3-301f687835ed)
+
+## Short add-on block
+
+If you want a shorter version to append to any build prompt, use this:
+
+Add full SEO and trust/legal site architecture. Implement unique titles/meta descriptions, canonical tags, OG/Twitter tags, robots.txt, sitemap, internal linking, and Google-preferred JSON-LD structured data. Add About, Contact, Privacy Policy, Terms of Service, Cookie Policy, and Disclaimer pages where applicable. Add cookie consent by default. Add a site-wide footer with: Developer312, “Developer312 is a subsidiary of NIGHT LITE USA LLC,” hello@developer312.com, (510) 401-1225, and links to all legal pages. Add Organization, WebSite, WebPage, AboutPage, ContactPage, BreadcrumbList, and SoftwareApplication/FAQ/Article schema where genuinely applicable to visible page content. Do not fabricate reviews, ratings, certifications, or compliance claims. [perplexity](https://www.perplexity.ai/search/a79d32c9-8bc7-4ed6-9ea3-301f687835ed)
+
+## Footer details
+
+Use this exact identity block consistently unless the current project already has a more specific brand/entity override: Developer312 | hello@developer312.com | (510) 401-1225 | Developer312 is a subsidiary of NIGHT LITE USA LLC.  [perplexity](https://www.perplexity.ai/search/a79d32c9-8bc7-4ed6-9ea3-301f687835ed)
+

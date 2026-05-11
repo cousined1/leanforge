@@ -1,0 +1,106 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Keyword {
+  id          String    @id @default(cuid())
+  term        String    @unique
+  slug        String    @unique
+  category    String?
+  searchVolume Int      @default(0)
+  difficulty   Float    @default(0)
+  cpc          Float    @default(0)
+  trendScore   Float    @default(0)    // 0-100 composite score
+  velocity     Float    @default(0)    // % change over 7d
+  direction    String    @default("flat") // rising, falling, flat
+  source       String    @default("google_trends") // google_trends, serper, manual
+  isActive     Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  trends      Trend[]
+  snapshots   DailySnapshot[]
+  categoryRel Category? @relation(fields: [category], references: [slug])
+
+  @@index([term])
+  @@index([category])
+  @@index([trendScore])
+  @@index([velocity])
+  @@index([direction])
+}
+
+model Trend {
+  id          String    @id @default(cuid())
+  keywordId   String
+  keyword     Keyword   @relation(fields: [keywordId], references: [id], onDelete: Cascade)
+  date        DateTime  @db.Date
+  interest    Int        // 0-100 Google Trends interest
+  volume      Int?       // From Serper if available
+  source      String    @default("google_trends")
+  createdAt   DateTime  @default(now())
+
+  @@unique([keywordId, date, source])
+  @@index([keywordId, date])
+  @@index([date])
+}
+
+model DailySnapshot {
+  id              String    @id @default(cuid())
+  keywordId       String
+  keyword         Keyword   @relation(fields: [keywordId], references: [id], onDelete: Cascade)
+  date            DateTime  @db.Date
+  interest        Int
+  volume          Int?
+  velocity7d      Float?    // % change over 7 days
+  velocity30d     Float?    // % change over 30 days
+  peakInterest    Int?
+  direction7d     String?   // rising, falling, flat
+  direction30d    String?
+  createdAt       DateTime  @default(now())
+
+  @@unique([keywordId, date])
+  @@index([keywordId, date])
+  @@index([date])
+}
+
+model Category {
+  id          String    @id @default(cuid())
+  name        String    @unique
+  slug        String    @unique
+  description String?
+  icon        String?
+  color       String?
+  sortOrder   Int       @default(0)
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  keywords    Keyword[] @relation(referencedBy: "category")
+
+  @@index([slug])
+}
+
+model TrendingTopic {
+  id          String    @id @default(cuid())
+  keyword     String
+  category    String?
+  interest    Int
+  volume      Int?
+  velocity    Float
+  direction   String
+  source      String    @default("google_trends")
+  region      String    @default("US")
+  capturedAt  DateTime  @default(now())
+  createdAt   DateTime  @default(now())
+
+  @@index([capturedAt])
+  @@index([category])
+  @@index([velocity])
+}

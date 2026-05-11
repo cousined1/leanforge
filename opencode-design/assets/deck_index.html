@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Deck</title>
+<!--
+  assets/deck_index.html  —  multi-file slide aggregator
+  ==========================================================
+  This is the DEFAULT slide architecture in opencode-design.
+  Each slide lives in its own HTML file in slides/01.html, slides/02.html, etc.
+  This index aggregates them in iframes so:
+    • Each slide owns its CSS, fonts, and scripts (zero cross-slide bleed)
+    • Adding/removing/reordering slides = renaming files
+    • Per-slide errors are isolated to that slide
+    • Print merges all iframes into one document for PDF export
+
+  Usage:
+    1. Put your slide files at slides/01.html, slides/02.html, …
+       (zero-padded numeric filenames, sorted lexicographically)
+    2. Optionally edit DECK_TITLE and SLIDE_FILES below
+    3. Open this file. Use ←/→/Space/PgUp/PgDn to navigate.
+
+  Each slide HTML file should be a complete, standalone 1920×1080 page.
+  The most reliable pattern for the slide HTML body:
+
+      <body style="margin:0; width:1920px; height:1080px; overflow:hidden;
+                   font-family: -apple-system, system-ui, sans-serif;">
+        <!-- slide content -->
+      </body>
+
+  The aggregator scales each iframe to fit the viewport while preserving 16:9.
+  If you author at a different aspect ratio, change STAGE_W and STAGE_H below.
+-->
+<style>
+  html, body { margin: 0; padding: 0; height: 100%; background: #000; overflow: hidden;
+               font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif; }
+  #deck { position: fixed; inset: 0; }
+  .slide-frame {
+    position: absolute; top: 50%; left: 50%; transform-origin: 0 0;
+    border: 0; background: #fff; pointer-events: auto;
+    transition: opacity 120ms ease;
+  }
+  .slide-frame.inactive { opacity: 0; pointer-events: none; }
+  #pager {
+    position: fixed; bottom: 16px; right: 20px; color: rgba(255,255,255,0.5);
+    font-size: 13px; font-variant-numeric: tabular-nums; pointer-events: none; z-index: 10;
+  }
+  #help {
+    position: fixed; bottom: 16px; left: 20px; color: rgba(255,255,255,0.35);
+    font-size: 11px; letter-spacing: 0.05em; text-transform: uppercase; pointer-events: none; z-index: 10;
+  }
+  @media print {
+    #deck, .slide-frame { position: static !important; transform: none !important;
+                          width: 100% !important; height: 100vh !important; opacity: 1 !important;
+                          page-break-after: always; display: block !important; }
+    #pager, #help { display: none; }
+  }
+</style>
+</head>
+<body>
+<div id="deck"></div>
+<div id="pager"></div>
+<div id="help">← →  ·  F fullscreen  ·  P print</div>
+
+<script>
+  // ─── CONFIG ────────────────────────────────────────────
+  const DECK_TITLE  = "deck";              // used for localStorage key
+  const STAGE_W     = 1920;
+  const STAGE_H     = 1080;
+  // List your slide files here, OR leave as null and rely on the auto-discovery
+  // pattern (slides/01.html, slides/02.html, …) up to MAX_AUTO_SLIDES.
+  const SLIDE_FILES = null;
+  const MAX_AUTO_SLIDES = 50;
+
+  // ─── DISCOVER SLIDES ───────────────────────────────────
+  async function discover() {
+    if (SLIDE_FILES) return SLIDE_FILES;
+    // Try slides/01.html through slides/NN.html, stop on first 404.
+    const found = [];
+    for (let i = 1; i <= MAX_AUTO_SLIDES; i++) {
+      const name = `slides/${String(i).padStart(2, "0")}.html`;
+      try {
+        const r = await fetch(name, { method: "HEAD" });
+        if (r.ok) found.push(name);
+        else break;
+      } catch { break; }
+    }
+    if (found.length === 0) {
+      // Fallback: maybe slides are in the same dir as this file
+      for (let i = 1; i <= MAX_AUTO_SLIDES; i++) {
+        const name = `${String(i).padStart(2, "0")}.html`;
+        try {
+          const r = await fetch(name, { method: "HEAD" });
+          if (r.ok) found.push(name);
+          else break;
+        } catch { break; }
+      }
+    }
+    return found;
+  }
+
+  // ─── BUILD ─────────────────────────────────────────────
+  const deck = document.getElementById("deck");
+  const pager = document.getElementById("pager");
+  let frames = [];
+  let index = 0;
+  const storageKey = `deck:${DECK_TITLE}`;
+
+  function fitAll() {
+    const sx = window.innerWidth / STAGE_W;
+    const sy = window.innerHeight / STAGE_H;
+    const s = Math.min(sx, sy);
+    frames.forEach(f => {
+      f.style.width  = STAGE_W + "px";
+      f.style.height = STAGE_H + "px";
+      f.style.transform = `translate(-50%, -50%) scale(${s})`;
+    });
+  }
+
+  function show(i) {
+    if (i < 0 || i >= frames.length) return;
+    index = i;
+    frames.forEach((f, j) => f.classList.toggle("inactive", j !== i));
+    pager.textContent = `${i + 1} / ${frames.length}`;
+    try { localStorage.setItem(storageKey, String(i)); } catch {}
+  }
+
+  function go(delta) { show(Math.max(0, Math.min(frames.length - 1, index + delta))); }
+
+  async function init() {
+    const files = await discover();
+    if (files.length === 0) {
+      deck.innerHTML = `
+        <div style="position:absolute; inset:0; display:grid; place-items:center; color:#fff;
+                    font-family: system-ui, sans-serif; text-align:center; padding:40px;">
+          <div>
+            <div style="font-size:24px; margin-bottom:12px;">No slides found</div>
+            <div style="color: rgba(255,255,255,0.5); font-size:14px; max-width:480px; line-height:1.5;">
+              Put your slides at <code>slides/01.html</code>, <code>slides/02.html</code>, etc.,
+              or set <code>SLIDE_FILES</code> in the script above.
+            </div>
+          </div>
+        </div>`;
+      return;
+    }
+
+    files.forEach((src, i) => {
+      const f = document.createElement("iframe");
+      f.className = "slide-frame" + (i === 0 ? "" : " inactive");
+      f.src = src;
+      f.loading = i < 2 ? "eager" : "lazy";
+      f.scrolling = "no";
+      deck.appendChild(f);
+      frames.push(f);
+    });
+
+    // Restore position
+    let start = 0;
+    if (new URL(location.href).searchParams.get("reset") === "1") {
+      try { localStorage.removeItem(storageKey); } catch {}
+    } else {
+      try {
+        const saved = parseInt(localStorage.getItem(storageKey), 10);
+        if (!isNaN(saved) && saved >= 0 && saved < files.length) start = saved;
+      } catch {}
+    }
+    // Honor ?slide=N URL param (1-based, for verify.py)
+    const slideParam = parseInt(new URL(location.href).searchParams.get("slide"), 10);
+    if (!isNaN(slideParam) && slideParam >= 1 && slideParam <= files.length) {
+      start = slideParam - 1;
+    }
+
+    fitAll();
+    show(start);
+  }
+
+  // ─── EVENTS ────────────────────────────────────────────
+  window.addEventListener("resize", fitAll);
+  window.addEventListener("keydown", (e) => {
+    const tag = (document.activeElement && document.activeElement.tagName) || "";
+    if (/^(INPUT|TEXTAREA|SELECT)$/.test(tag)) return;
+    switch (e.key) {
+      case "ArrowRight": case "PageDown": case " ":
+        e.preventDefault(); go(1); break;
+      case "ArrowLeft": case "PageUp":
+        e.preventDefault(); go(-1); break;
+      case "Home": e.preventDefault(); show(0); break;
+      case "End":  e.preventDefault(); show(frames.length - 1); break;
+      case "f": case "F":
+        document.fullscreenElement ? document.exitFullscreen?.() : document.documentElement.requestFullscreen?.();
+        break;
+      case "p": case "P": window.print(); break;
+    }
+  });
+
+  init();
+</script>
+</body>
+</html>

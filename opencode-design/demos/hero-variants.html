@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>opencode-design · sample · variant grid</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  html, body { margin: 0; padding: 0; background: #fafafa; }
+  body { font-family: 'Inter', -apple-system, system-ui, sans-serif; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<!--
+  Loads React/Babel from ./_vendor for offline use. To switch back to a CDN
+  for production, replace these three <script> tags with:
+    <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.development.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.development.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.22.5/babel.min.js"></script>
+-->
+<script src="./_vendor/react.js"></script>
+<script src="./_vendor/react-dom.js"></script>
+<script src="./_vendor/babel.min.js"></script>
+
+<script type="text/babel" data-presets="env,react">
+// ─── design_canvas.jsx (inlined from assets/) ──────────────────────────
+const { useState: _dcUseState, useEffect: _dcUseEffect } = React;
+
+function DesignCanvas({ title, brief, variants = [], theme = "light" }) {
+  const [focused, setFocused] = _dcUseState(null);
+  const n = variants.length;
+  _dcUseEffect(() => {
+    const onKey = (e) => { if (e.key === "Escape") setFocused(null); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+  const isDark = theme === "dark";
+  const bg = isDark ? "#0a0a0a" : "#fafafa";
+  const fg = isDark ? "#fafafa" : "#0a0a0a";
+  const muted = isDark ? "#9ca3af" : "#6b7280";
+  const tileBg = isDark ? "#171717" : "#ffffff";
+  const border = isDark ? "#262626" : "#e5e7eb";
+  const gridCols = n === 1 ? "1fr" : n === 2 ? "1fr 1fr" : n === 3 ? "1fr 1fr 1fr" : "1fr 1fr";
+  return (
+    <div style={{ width: "100%", minHeight: "100vh", background: bg, color: fg,
+      fontFamily: "Inter, -apple-system, system-ui, sans-serif",
+      padding: "32px 40px", boxSizing: "border-box" }}>
+      <div style={{ marginBottom: 28, maxWidth: 960 }}>
+        {title && <h1 style={{ fontSize: 28, fontWeight: 600, letterSpacing: "-0.02em", margin: "0 0 8px 0" }}>{title}</h1>}
+        {brief && <p style={{ fontSize: 14, color: muted, margin: 0, lineHeight: 1.5 }}>{brief}</p>}
+      </div>
+      {focused === null ? (
+        <div style={{ display: "grid", gridTemplateColumns: gridCols, gap: 20 }}>
+          {variants.map((v, i) => (
+            <div key={i} onClick={() => setFocused(i)} style={{
+              background: tileBg, border: `1px solid ${border}`, borderRadius: 12,
+              overflow: "hidden", cursor: "zoom-in",
+              transition: "transform 120ms ease, box-shadow 120ms ease",
+              display: "flex", flexDirection: "column" }}>
+              <div style={{ padding: "14px 18px", borderBottom: `1px solid ${border}`,
+                display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+                <div style={{ fontSize: 15, fontWeight: 600 }}>{v.name || `Variant ${i + 1}`}</div>
+                {v.school && <div style={{ fontSize: 11, color: muted, textTransform: "uppercase", letterSpacing: "0.08em" }}>{v.school}</div>}
+              </div>
+              <div style={{ flex: 1, position: "relative", overflow: "hidden", minHeight: 360 }}>{v.node}</div>
+              {v.note && <div style={{ padding: "10px 18px", borderTop: `1px solid ${border}`, fontSize: 12, color: muted, lineHeight: 1.5 }}>{v.note}</div>}
+            </div>
+          ))}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+// ─── Three hero variants for "ship a Postgres database in 30 seconds" ──
+
+const Editorial = () => (
+  <div style={{ background: "#fafafa", height: "100%", padding: "48px 40px", position: "relative" }}>
+    <div style={{ fontSize: 11, letterSpacing: "0.16em", textTransform: "uppercase",
+                   color: "#6b7280", marginBottom: 28, fontWeight: 500 }}>
+      The Quarterly Brief — Issue 04
+    </div>
+    <h1 style={{ fontFamily: "'Fraunces', serif", fontSize: 56, lineHeight: 1.0,
+                 margin: 0, fontWeight: 600, letterSpacing: "-0.02em", color: "#0a0a0a" }}>
+      Ship a Postgres<br/>
+      database in <em style={{ fontStyle: "italic", color: "#0066ff" }}>thirty seconds.</em>
+    </h1>
+    <p style={{ fontSize: 16, lineHeight: 1.55, color: "#3f3f46", maxWidth: 480, marginTop: 24 }}>
+      Branchable. Serverless. With point-in-time recovery measured in clock-tick precision.
+      Built for teams that treat their database as a product, not an artifact.
+    </p>
+    <div style={{ display: "flex", gap: 12, marginTop: 32 }}>
+      <button style={{ background: "#0a0a0a", color: "#fafafa", padding: "12px 22px",
+                       border: "none", borderRadius: 8, fontSize: 14, fontWeight: 500, cursor: "pointer" }}>
+        Start free
+      </button>
+      <button style={{ background: "transparent", color: "#0a0a0a", padding: "12px 22px",
+                       border: "1px solid #0a0a0a", borderRadius: 8, fontSize: 14, fontWeight: 500, cursor: "pointer" }}>
+        Read the docs
+      </button>
+    </div>
+    <div style={{ position: "absolute", bottom: 24, right: 32, fontSize: 11,
+                   fontFamily: "'JetBrains Mono', monospace", color: "#9ca3af",
+                   letterSpacing: "0.04em" }}>
+      v4.2 · 47ms median p50
+    </div>
+  </div>
+);
+
+const Kinetic = () => (
+  <div style={{ background: "#0a0a0a", color: "#fafafa", height: "100%", padding: "48px 40px",
+                 position: "relative", overflow: "hidden" }}>
+    <div style={{ position: "absolute", top: -80, right: -80, width: 360, height: 360,
+                   background: "radial-gradient(circle, #ff4f00 0%, transparent 65%)",
+                   opacity: 0.45, filter: "blur(20px)" }} />
+    <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: "#ff4f00",
+                   letterSpacing: "0.16em", marginBottom: 28, position: "relative" }}>
+      [PG.SHIP] BUILD 4.2 · LIVE
+    </div>
+    <h1 style={{ fontSize: 64, lineHeight: 0.95, margin: 0, fontWeight: 700,
+                  letterSpacing: "-0.04em", position: "relative" }}>
+      30 seconds.<br/>
+      <span style={{ color: "#ff4f00" }}>Postgres.</span> Live.
+    </h1>
+    <div style={{ display: "flex", gap: 24, marginTop: 36, fontSize: 13, color: "#9ca3af" }}>
+      <span><span style={{ color: "#fafafa", fontWeight: 600,
+                            fontFamily: "'JetBrains Mono', monospace" }}>47ms</span> p50</span>
+      <span><span style={{ color: "#fafafa", fontWeight: 600,
+                            fontFamily: "'JetBrains Mono', monospace" }}>0.3s</span> cold start</span>
+      <span><span style={{ color: "#fafafa", fontWeight: 600,
+                            fontFamily: "'JetBrains Mono', monospace" }}>∞</span> branches</span>
+    </div>
+    <div style={{ marginTop: 36 }}>
+      <button style={{ background: "#ff4f00", color: "#0a0a0a", padding: "14px 28px",
+                       border: "none", borderRadius: 6, fontSize: 14, fontWeight: 700,
+                       textTransform: "uppercase", letterSpacing: "0.08em", cursor: "pointer" }}>
+        Deploy now →
+      </button>
+    </div>
+  </div>
+);
+
+const Quiet = () => (
+  <div style={{ background: "#f7f7f8", height: "100%", padding: "64px 56px",
+                 display: "flex", flexDirection: "column", justifyContent: "center" }}>
+    <div style={{ fontSize: 13, color: "#9ca3af", marginBottom: 20, fontWeight: 400 }}>
+      Postgres, simply.
+    </div>
+    <h1 style={{ fontSize: 36, lineHeight: 1.2, margin: 0, fontWeight: 400,
+                  letterSpacing: "-0.01em", color: "#1a1a1a", maxWidth: 380 }}>
+      A database that takes thirty seconds to set up.
+    </h1>
+    <p style={{ fontSize: 14, lineHeight: 1.6, color: "#6b7280", maxWidth: 380, marginTop: 18, fontWeight: 400 }}>
+      No clusters to provision. No replicas to babysit. Branch, query, restore.
+    </p>
+    <div style={{ marginTop: 28 }}>
+      <a href="#" style={{ color: "#1a1a1a", fontSize: 14, textDecoration: "none",
+                            borderBottom: "1px solid #1a1a1a", paddingBottom: 2 }}>
+        Begin →
+      </a>
+    </div>
+  </div>
+);
+
+// ─── Mount ─────────────────────────────────────────────────────────────
+
+const App = () => (
+  <DesignCanvas
+    title="Three directions for the launch hero"
+    brief='Postgres-as-a-service · launch landing page · prosumer dev audience · "ship a database in 30 seconds"'
+    variants={[
+      { name: "Editorial",  school: "Information Architecture",
+        node: <Editorial />,
+        note: "Reads like a tech publication. Serif headline plus italics for tension. The numbers go in the corner like a footnote. Best if the brand wants to be read, not consumed." },
+      { name: "Kinetic",  school: "Motion Poetics",
+        node: <Kinetic />,
+        note: "Build-in-public energy. Mono type for engineering credibility, orange-on-black for urgency. Best if the audience is hard-core dev and the launch is the moment." },
+      { name: "Quiet",  school: "Minimalist · Eastern",
+        node: <Quiet />,
+        note: "Refuses to sell. Trusts the product to speak. Single sentence does the work. Best if the competitive set is loud and the brand wants to feel different by being still." },
+    ]}
+  />
+);
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>

@@ -1,0 +1,1325 @@
+
+System prompt
+You are an elite product architect and builder operating in godmythos-v10.2 mode with opencode-design ULTRATHINK enabled. Your job is to produce accurate, production-minded, high-signal outputs that turn rough product ideas into clean, buildable systems.
+
+Core behavior
+Think in layers: product, architecture, data, implementation, UX, deployment, and monetization.
+
+Validate assumptions and remove contradictions before proposing solutions.
+
+Prefer concrete implementation detail over vague abstraction.
+
+Do not invent unsupported APIs, version numbers, product capabilities, or integrations.
+
+If a factual claim depends on a specific product, API, or version, verify it before asserting it.
+
+When a task involves design, interface, or visual presentation, avoid generic AI-slop patterns and favor specific, contextual, brand-aware output.
+
+If the brief is vague, produce the most useful structured interpretation rather than stalling.
+
+If the task requires design exploration, provide multiple differentiated directions instead of one default answer.
+
+Keep outputs concise but complete, and organize them clearly.
+
+Reasoning priorities
+Correctness over confidence.
+
+Specificity over genericity.
+
+Structure over prose.
+
+Buildability over aspiration.
+
+Contextual product identity over template output.
+
+Output standards
+Start with a direct answer.
+
+Use clear sections when the task is multi-part.
+
+Call out contradictions, missing inputs, and risky assumptions explicitly.
+
+Do not pad with filler.
+
+If you identify a better structure than the one provided, replace it rather than preserving a flawed pattern.
+
+Developer prompt
+You are working on LeanForge Keyword Trend Index, an InsForge-based keyword trend intelligence backend deployed on Railway with PostgreSQL on Neon and Redis on Upstash. The product includes SEO AI Regent as a first-class cross-sell and companion frontend, not as an afterthought.
+
+Product goal
+Build a focused keyword intelligence platform that:
+
+ingests trend data,
+
+enriches it with search-volume signals,
+
+scores keywords,
+
+stores daily snapshots,
+
+exposes a clean REST API,
+
+and drives conversion into SEO AI Regent.
+
+Required architecture posture
+Treat this as a real backend product, not a demo framework.
+
+Keep the architecture single-deployment unless there is a strong reason not to.
+
+Use InsForge as the backend runtime.
+
+Use Prisma for schema and migrations.
+
+Use Neon PostgreSQL for persistent data.
+
+Use Upstash Redis for cache, rate limiting, and leaderboard-type operations.
+
+Use cron jobs for polling and snapshot creation.
+
+Use Redis and database caching intentionally, not redundantly.
+
+Favor operational simplicity and deterministic behavior.
+
+Product-specific rules
+SEO AI Regent should be embedded in the product from day one.
+
+Every keyword/trend page should have an intentional cross-sell surface.
+
+Metadata payloads should support upsell placement and CTA experimentation.
+
+The product should feel monetizable, indexable, and useful to SEO operators immediately.
+
+Build constraints
+Assume TypeScript.
+
+Assume a REST API.
+
+Assume Google Trends-style ingestion and Serper-style enrichment unless corrected.
+
+Do not preserve obviously broken Prisma modeling.
+
+Do not keep invalid upsert logic, duplicate schema blocks, or inconsistent relations.
+
+Do not fabricate details about InsForge if the framework capability is uncertain.
+
+If the original playbook contains a flawed approach, replace it with a better one.
+
+What to produce
+When given the playbook, do the following:
+
+Correct the architecture.
+
+Fix the schema.
+
+Refine the service boundaries.
+
+Tighten the API.
+
+Improve the cron and caching strategy.
+
+Strengthen deployment and launch flow.
+
+Identify risks and corrections.
+
+Rewrite the original prompt into a cleaner AI-assistant-ready version.
+
+Output shape
+Prefer this structure:
+
+Executive framing.
+
+Architecture.
+
+Data model.
+
+Service design.
+
+API design.
+
+Cron and freshness strategy.
+
+Monetization and growth.
+
+Implementation plan.
+
+Risks and corrections.
+
+Improved prompt/spec.
+
+Design guidance
+When the task touches UI, landing pages, or product presentation:
+
+Make the product feel like a real company asset, not a generic dashboard.
+
+Keep SEO AI Regent visually and strategically connected to the core product.
+
+Avoid bland template aesthetics.
+
+Provide differentiated options when helpful.
+
+Final instruction
+If there is a conflict between the system prompt and this developer prompt, the system prompt wins. The developer prompt should only define the LeanForge/Regent product context and implementation constraints.
+
+───
+
+📋 SEO Keyword Trend Index — Full Build Playbook
+
+Project Name: LeanForge Keyword Trend Index
+Stack: InsForge + Railway + PostgreSQL (Neon) + Redis (Upstash)
+Cross-sell: SEO AI Regent (content optimization companion)
+InsForge Instance: insforge-production-0d5a.up.railway.app (API key: ik_sehrni5g1w9ptlg52cx3sx32nlrvsgmz)
+
+───
+
+0. Architecture Overview (Corrected)
+
+Your original architecture had a duplicate block. Here's the corrected single-deployment version:
+
+┌──────────────────────────────────────────────────────────────┐
+│  Railway — Single Deployment                                 │
+│                                                              │
+│  ┌──────────────────┐    ┌────────────────────────────────┐ │
+│  │  LeanForge        │    │  PostgreSQL (Neon)              │ │
+│  │  Backend API      │────│  • keywords table               │ │
+│  │                   │    │  • trends table                 │ │
+│  │  • Routes         │    │  • categories table             │ │
+│  │  • Controllers    │    │  • daily_snapshots               │ │
+│  │  • Middleware     │    └────────────────────────────────┘ │
+│  │  • Cron Jobs      │                                     │
+│  └────────┬─────────┘    ┌────────────────────────────────┐ │
+│           │              │  Redis (Upstash)                │ │
+│           └─────────────│  • Trend cache (1hr TTL)        │ │
+│                          │  • Rate limit counters          │ │
+│                          │  • Leaderboard cache            │ │
+│                          └────────────────────────────────┘ │
+└──────────────────────────────────────────────────────────────┘
+         │
+         │ API (REST + JSON)
+         ▼
+┌──────────────────────────────────────────────────────────────┐
+│  SEO AI Regent (Next.js 14) — Future Frontend Integration   │
+│  • Embeds keyword trend widgets                              │
+│  • Cross-sells Regent subscriptions from trend pages         │
+│  • "Optimize for this trending keyword" CTA                  │
+└──────────────────────────────────────────────────────────────┘
+
+───
+
+1. LeanForge Backend Setup
+
+1.1 Initialize Project
+
+mkdir keyword-trend-api
+cd keyword-trend-api
+npm init -y
+
+# Core dependencies — InsForge backend framework
+npm install @insforge/core @insforge/router @insforge/middleware
+npm install @prisma/client
+npm install ioredis
+npm install dotenv node-cron axios
+npm install cors helmet compression
+npm install zod date-fns
+
+# Google Trends — use the reliable unofficial API
+npm install google-trends-api
+
+# Serper.dev — for search volume data (already in SEO AI Regent stack)
+npm install serper
+
+# Dev dependencies
+npm install -D typescript @types/node @types/cors tsx prisma eslint
+npx tsc --init
+
+1.2 Environment Variables
+
+# .env
+
+# InsForge
+INSFORGE_API_KEY=ik_sehrni5g1w9ptlg52cx3sx32nlrvsgmz
+INSFORGE_BASE_URL=https://insforge-production-0d5a.up.railway.app
+
+# Database — Neon PostgreSQL
+DATABASE_URL=postgresql://neondb_owner:YOUR_PASSWORD@ep-XXXXXX.us-east-2.aws.neon.tech/keyword_trends?sslmode=require
+
+# Redis — Upstash
+REDIS_URL=rediss://default:YOUR_PASSWORD@us1-xxxxx.upstash.io:6379
+REDIS_TOKEN=YOUR_UPSTASH_TOKEN
+
+# Serper.dev (search volume + SERP data)
+SERPER_API_KEY=YOUR_SERPER_KEY
+
+# Google Trends (no key needed — unofficial API)
+
+# Server
+PORT=3001
+NODE_ENV=production
+RAILWAY_STATIC_URL=https://keyword-trend-api.up.railway.app
+
+# Rate limiting
+RATE_LIMIT_WINDOW_MS=900000
+RATE_LIMIT_MAX=100
+
+# Cron schedule
+TREND_POLL_CRON=0 */6 * * *
+
+1.3 Project Structure
+
+keyword-trend-api/
+├── src/
+[5/10/2026 4:35 PM] Talisha_bot: │   ├── index.ts                    # InsForge entry point
+│   ├── config/
+│   │   ├── database.ts             # Prisma client singleton
+[5/10/2026 4:35 PM] Talisha_bot: │   │   ├── redis.ts                # Upstash Redis client
+│   │   └── env.ts                  # Zod-validated env vars
+│   ├── controllers/
+│   │   ├── keywordController.ts    # CRUD for keywords
+│   │   ├── trendController.ts      # Trend queries + aggregations
+│   │   └── categoryController.ts   # Category management
+│   ├── services/
+│   │   ├── googleTrendsService.ts  # Pull from Google Trends API
+│   │   ├── serperService.ts        # Pull search volume from Serper
+│   │   ├── cacheService.ts         # Redis caching layer
+│   │   └── snapshotService.ts      # Daily snapshot cron job
+│   ├── routes/
+│   │   └── apiRoutes.ts            # All route registrations
+│   ├── middleware/
+│   │   ├── rateLimiter.ts          # IP-based rate limiting
+│   │   ├── apiKeyAuth.ts           # InsForge API key validation
+│   │   └── errorHandler.ts        # Global error handler
+│   ├── jobs/
+│   │   ├── trendPoller.ts         # 6-hour trend collection cron
+│   │   └── snapshotBuilder.ts     # Daily snapshot aggregation
+│   ├── types/
+│   │   └── index.ts               # Shared TypeScript types
+│   └── utils/
+│       ├── scoring.ts             # Trend scoring algorithm
+│       └── validators.ts           # Zod schemas
+├── prisma/
+│   ├── schema.prisma              # Database schema
+│   └── migrations/                 # Generated migrations
+├── railway.toml                   # Railway deployment config
+├── Dockerfile                     # Multi-stage build
+├── .env.example
+├── tsconfig.json
+└── package.json
+
+1.4 TypeScript Config
+
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "lib": ["ES2022"],
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}
+
+───
+
+2. Database Schema (Prisma)
+
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Keyword {
+  id          String    @id @default(cuid())
+  term        String    @unique
+  slug        String    @unique
+  category    String?
+  searchVolume Int      @default(0)
+  difficulty   Float    @default(0)
+  cpc          Float    @default(0)
+  trendScore   Float    @default(0)    // 0-100 composite score
+  velocity     Float    @default(0)    // % change over 7d
+  direction    String    @default("flat") // rising, falling, flat
+  source       String    @default("google_trends") // google_trends, serper, manual
+  isActive     Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  trends      Trend[]
+  snapshots   DailySnapshot[]
+  categoryRel Category? @relation(fields: [category], references: [slug])
+
+  @@index([term])
+  @@index([category])
+  @@index([trendScore])
+  @@index([velocity])
+  @@index([direction])
+}
+
+model Trend {
+  id          String    @id @default(cuid())
+  keywordId   String
+  keyword     Keyword   @relation(fields: [keywordId], references: [id], onDelete: Cascade)
+  date        DateTime  @db.Date
+  interest    Int        // 0-100 Google Trends interest
+  volume      Int?       // From Serper if available
+  source      String    @default("google_trends")
+  createdAt   DateTime  @default(now())
+
+  @@unique([keywordId, date, source])
+  @@index([keywordId, date])
+  @@index([date])
+}
+
+model DailySnapshot {
+  id              String    @id @default(cuid())
+  keywordId       String
+  keyword         Keyword   @relation(fields: [keywordId], references: [id], onDelete: Cascade)
+  date            DateTime  @db.Date
+  interest        Int
+  volume          Int?
+  velocity7d      Float?    // % change over 7 days
+[5/10/2026 4:35 PM] Talisha_bot:   velocity30d     Float?    // % change over 30 days
+  peakInterest    Int?
+[5/10/2026 4:35 PM] Talisha_bot: direction7d     String?   // rising, falling, flat
+  direction30d    String?
+  createdAt       DateTime  @default(now())
+
+  @@unique([keywordId, date])
+  @@index([keywordId, date])
+  @@index([date])
+}
+
+model Category {
+  id          String    @id @default(cuid())
+  name        String    @unique
+  slug        String    @unique
+  description String?
+  icon        String?
+  color       String?
+  sortOrder   Int       @default(0)
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  keywords    Keyword[] @relation(referencedBy: "category")
+
+  @@index([slug])
+}
+
+model TrendingTopic {
+  id          String    @id @default(cuid())
+  keyword     String
+  category    String?
+  interest    Int
+  volume      Int?
+  velocity    Float
+  direction   String
+  source      String    @default("google_trends")
+  region      String    @default("US")
+  capturedAt  DateTime  @default(now())
+  createdAt   DateTime  @default(now())
+
+  @@index([capturedAt])
+  @@index([category])
+  @@index([velocity])
+}
+
+Run migrations:
+
+npx prisma migrate dev --name init
+npx prisma generate
+
+───
+
+3. Core Services
+
+3.1 InsForge Entry Point
+
+// src/index.ts
+import { InsForge } from '@insforge/core';
+import { json } from '@insforge/middleware';
+import cors from 'cors';
+import helmet from 'helmet';
+import compression from 'compression';
+import { apiRoutes } from './routes/apiRoutes';
+import { errorHandler } from './middleware/errorHandler';
+import { rateLimiter } from './middleware/rateLimiter';
+import { startTrendPoller } from './jobs/trendPoller';
+
+const app = new InsForge();
+
+// Security & compression
+app.use(helmet());
+app.use(compression());
+app.use(cors({
+  origin: [
+    'https://seo-ai-regent.com',
+    'http://localhost:3000'
+  ],
+  credentials: true
+}));
+app.use(json({ limit: '10mb' }));
+
+// Rate limiting
+app.use(rateLimiter);
+
+// API routes
+app.use('/api/v1', apiRoutes);
+
+// Global error handler
+app.use(errorHandler);
+
+// Start cron jobs
+startTrendPoller();
+
+const PORT = parseInt(process.env.PORT || '3001', 10);
+app.listen(PORT, () => {
+  console.log(`🔥 LeanForge Keyword Trend API running on port ${PORT}`);
+});
+
+export default app;
+
+3.2 Google Trends Service
+
+// src/services/googleTrendsService.ts
+import googleTrends from 'google-trends-api';
+import { prisma } from '../config/database';
+import { cacheService } from './cacheService';
+
+interface TrendResult {
+  keyword: string;
+  interest: number;
+  volume?: number;
+}
+
+export class GoogleTrendsService {
+  
+  /**
+   * Fetch daily interest for a keyword (past 90 days)
+   */
+  async getKeywordTimeline(keyword: string, geo = 'US'): Promise<TrendResult[]> {
+    const cacheKey = `trend:timeline:${keyword}:${geo}`;
+    const cached = await cacheService.get<TrendResult[]>(cacheKey);
+    if (cached) return cached;
+
+    try {
+      const results = await googleTrends.interestOverTime({
+        keyword,
+        geo,
+        startTime: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000),
+        endTime: new Date(),
+      });
+
+      const parsed = JSON.parse(results);
+      const timeline: TrendResult[] = parsed.default.timelineData.map((point: any) => ({
+        keyword,
+        interest: parseInt(point.value[0], 10),
+        date: new Date(point.formattedTime),
+      }));
+
+      await cacheService.set(cacheKey, timeline, 3600); // 1hr TTL
+      return timeline;
+    } catch (error: any) {
+      console.error(`Google Trends error for "${keyword}":`, error.message);
+      return [];
+    }
+  }
+
+  /**
+   * Fetch trending searches (daily, realtime, or by category)
+   */
+  async getDailyTrends(geo = 'US'): Promise<any[]> {
+    const cacheKey = `trend:daily:${geo}`;
+    const cached = await cacheService.get<any[]>(cacheKey);
+    if (cached) return cached;
+
+    try {
+      const results = await googleTrends.dailyTrends({ geo });
+[5/10/2026 4:35 PM] Talisha_bot:       const parsed = JSON.parse(results);
+[5/10/2026 4:35 PM] Talisha_bot: const trends = parsed.default.trendingSearchesDays[0].trendingSearches.map((t: any) => ({
+        keyword: t.title.query,
+        interest: t.formattedTraffic,
+        relatedQueries: t.relatedQueries.map((q: any) => q.query),
+        articles: t.articles.map((a: any) => ({
+          title: a.title,
+          url: a.url,
+          source: a.source,
+        })),
+      }));
+
+      await cacheService.set(cacheKey, trends, 3600);
+      return trends;
+    } catch (error: any) {
+      console.error('Daily trends error:', error.message);
+      return [];
+    }
+  }
+
+  /**
+   * Fetch realtime trending topics
+   */
+  async getRealtimeTrends(category = 'all', geo = 'US'): Promise<any[]> {
+    try {
+      const results = await googleTrends.realTimeTrends({ category, geo });
+      const parsed = JSON.parse(results);
+      
+      return parsed.default.storySummaries.trending.map((t: any) => ({
+        keyword: t.title,
+        interest: t.entityNames,
+        articles: t.articles,
+      }));
+    } catch (error: any) {
+      console.error('Realtime trends error:', error.message);
+      return [];
+    }
+  }
+
+  /**
+   * Compare multiple keywords
+   */
+  async compareKeywords(keywords: string[], geo = 'US'): Promise<any> {
+    const cacheKey = `trend:compare:${keywords.sort().join(',')}:${geo}`;
+    const cached = await cacheService.get(cacheKey);
+    if (cached) return cached;
+
+    try {
+      const results = await googleTrends.interestOverTime({
+        keyword: keywords,
+        geo,
+        startTime: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+      });
+
+      const parsed = JSON.parse(results);
+      await cacheService.set(cacheKey, parsed, 7200);
+      return parsed;
+    } catch (error: any) {
+      console.error('Compare keywords error:', error.message);
+      return {};
+    }
+  }
+}
+
+export const googleTrendsService = new GoogleTrendsService();
+
+3.3 Serper Service (Search Volume)
+
+// src/services/serperService.ts
+import axios from 'axios';
+import { cacheService } from './cacheService';
+
+interface SerperResult {
+  keyword: string;
+  searchVolume: number;
+  cpc: number;
+  difficulty: number;
+}
+
+export class SerperService {
+  private apiKey: string;
+  private baseUrl = 'https://google.serper.dev';
+
+  constructor() {
+    this.apiKey = process.env.SERPER_API_KEY || '';
+  }
+
+  /**
+   * Get search volume + competition for a keyword
+   */
+  async getKeywordData(keyword: string): Promise<SerperResult | null> {
+    const cacheKey = `serper:keyword:${keyword}`;
+    const cached = await cacheService.get<SerperResult>(cacheKey);
+    if (cached) return cached;
+
+    try {
+      const response = await axios.post(
+        `${this.baseUrl}/search`,
+        { q: keyword, gl: 'us', hl: 'en' },
+        {
+          headers: {
+            'X-API-KEY': this.apiKey,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      const result: SerperResult = {
+        keyword,
+        searchVolume: response.data.searchInformation?.totalResults 
+          ? parseInt(response.data.searchInformation.totalResults, 10) 
+          : 0,
+        cpc: 0, // Use Serper's /metrics endpoint if available
+        difficulty: response.data.organic?.length || 0, // Proxy: more organic results = harder
+      };
+
+      await cacheService.set(cacheKey, result, 86400); // 24hr TTL
+      return result;
+    } catch (error: any) {
+      console.error(`Serper error for "${keyword}":`, error.message);
+      return null;
+    }
+  }
+
+  /**
+   * Batch keyword lookup
+   */
+  async getBatchKeywordData(keywords: string[]): Promise<SerperResult[]> {
+    const results: SerperResult[] = [];
+    
+    // Process in batches of 5 with 1s delay to respect rate limits
+    for (let i = 0; i < keywords.length; i += 5) {
+      const batch = keywords.slice(i, i + 5);
+      const batchResults = await Promise.all(
+        batch.map(kw => this.getKeywordData(kw))
+      );
+[5/10/2026 4:35 PM] Talisha_bot:       results.push(...batchResults.filter(Boolean) as SerperResult[]);
+[5/10/2026 4:35 PM] Talisha_bot: if (i + 5 < keywords.length) {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+    }
+    
+    return results;
+  }
+}
+
+export const serperService = new SerperService();
+
+3.4 Trend Scoring Algorithm
+
+// src/utils/scoring.ts
+import { DailySnapshot } from '@prisma/client';
+
+/**
+ * Composite Trend Score (0-100)
+ * 
+ * Signals and weights:
+ * - Interest velocity (7d): 30%  — Is it spiking NOW?
+ * - Interest velocity (30d): 15% — Sustained growth?
+ * - Current interest level: 25% — Absolute popularity
+ * - Search volume: 15%          — Real search demand
+ * - Direction consistency: 15%  — Rising for 7+ consecutive days
+ */
+export function calculateTrendScore(snapshot: DailySnapshot & {
+  currentInterest: number;
+  searchVolume?: number;
+}): number {
+  // Normalize each signal to 0-100
+  const velocity7dScore = normalize(Math.abs(snapshot.velocity7d || 0), 0, 200); // 0-200% change
+  const velocity30dScore = normalize(Math.abs(snapshot.velocity30d || 0), 0, 100);
+  const interestScore = normalize(snapshot.currentInterest, 0, 100);
+  const volumeScore = snapshot.searchVolume 
+    ? normalize(Math.log10(snapshot.searchVolume + 1), 0, 6) // log scale for huge range
+    : 50; // default mid if no volume data
+  const consistencyScore = snapshot.direction7d === 'rising' ? 80 
+    : snapshot.direction7d === 'flat' ? 40 : 20;
+
+  const composite = (
+    velocity7dScore * 0.30 +
+    velocity30dScore * 0.15 +
+    interestScore * 0.25 +
+    volumeScore * 0.15 +
+    consistencyScore * 0.15
+  );
+
+  return Math.round(Math.min(100, Math.max(0, composite)));
+}
+
+/**
+ * Calculate velocity (% change) between two values
+ */
+export function velocity(current: number, previous: number): number {
+  if (previous === 0) return current > 0 ? 100 : 0;
+  return ((current - previous) / previous) * 100;
+}
+
+/**
+ * Determine trend direction from velocity
+ */
+export function direction(velocity7d: number, velocity30d: number): 'rising' | 'falling' | 'flat' {
+  if (velocity7d > 10 && velocity30d > 0) return 'rising';
+  if (velocity7d < -10 || velocity30d < -10) return 'falling';
+  return 'flat';
+}
+
+function normalize(value: number, min: number, max: number): number {
+  if (max === min) return 50;
+  return ((value - min) / (max - min)) * 100;
+}
+
+3.5 Redis Cache Service
+
+// src/services/cacheService.ts
+import Redis from 'ioredis';
+
+export class CacheService {
+  private client: Redis;
+
+  constructor() {
+    this.client = new Redis(process.env.REDIS_URL!, {
+      maxRetriesPerRequest: 3,
+      retryStrategy(times) {
+        return Math.min(times * 200, 5000);
+      },
+    });
+
+    this.client.on('error', (err) => {
+      console.error('Redis connection error:', err.message);
+    });
+  }
+
+  async get<T>(key: string): Promise<T | null> {
+    const data = await this.client.get(key);
+    if (!data) return null;
+    try {
+      return JSON.parse(data) as T;
+    } catch {
+      return null;
+    }
+  }
+
+  async set(key: string, value: any, ttlSeconds: number): Promise<void> {
+    await this.client.setex(key, ttlSeconds, JSON.stringify(value));
+  }
+
+  async invalidate(pattern: string): Promise<void> {
+    const keys = await this.client.keys(pattern);
+    if (keys.length > 0) {
+      await this.client.del(...keys);
+    }
+  }
+
+  async getOrSet<T>(key: string, factory: () => Promise<T>, ttlSeconds: number): Promise<T> {
+    const cached = await this.get<T>(key);
+    if (cached) return cached;
+    
+    const value = await factory();
+    await this.set(key, value, ttlSeconds);
+    return value;
+  }
+
+  // Sorted set for leaderboard/ranking
+  async addToLeaderboard(leaderboard: string, member: string, score: number): Promise<void> {
+    await this.client.zadd(leaderboard, score, member);
+  }
+[5/10/2026 4:35 PM] Talisha_bot:   async getLeaderboard(leaderboard: string, limit = 20): Promise<Array<{ member: string; score: number }>> {
+    const results = await this.client.zrevrangebyscore(
+      leaderboard, '+inf', '-inf', 'WITHSCORES', 'LIMIT', 0, limit
+    );
+[5/10/2026 4:35 PM] Talisha_bot: const entries: Array<{ member: string; score: number }> = [];
+    for (let i = 0; i < results.length; i += 2) {
+      entries.push({ member: results[i], score: parseFloat(results[i + 1]) });
+    }
+    return entries;
+  }
+}
+
+export const cacheService = new CacheService();
+
+───
+
+4. API Routes
+
+// src/routes/apiRoutes.ts
+import { InsForge } from '@insforge/core';
+import { keywordController } from '../controllers/keywordController';
+import { trendController } from '../controllers/trendController';
+import { categoryController } from '../controllers/categoryController';
+
+export function apiRoutes(app: InsForge) {
+
+  // ── Keywords ──
+  app.get('/keywords', keywordController.list);
+  app.get('/keywords/trending', keywordController.trending);
+  app.get('/keywords/:slug', keywordController.getBySlug);
+  app.post('/keywords', keywordController.create);
+  app.put('/keywords/:slug', keywordController.update);
+  app.delete('/keywords/:slug', keywordController.deactivate);
+
+  // ── Trends ──
+  app.get('/trends', trendController.getTrends);
+  app.get('/trends/daily', trendController.getDailyTrends);
+  app.get('/trends/realtime', trendController.getRealtimeTrends);
+  app.get('/trends/compare', trendController.compareKeywords);
+  app.get('/trends/:keywordId/timeline', trendController.getTimeline);
+
+  // ── Categories ──
+  app.get('/categories', categoryController.list);
+  app.get('/categories/:slug', categoryController.getBySlug);
+  app.post('/categories', categoryController.create);
+
+  // ── Health ──
+  app.get('/health', (_req: any, res: any) => {
+    res.json({ status: 'ok', timestamp: new Date().toISOString() });
+  });
+}
+
+Key Controller Examples
+
+// src/controllers/trendController.ts
+import { Request, Response } from '@insforge/core';
+import { googleTrendsService } from '../services/googleTrendsService';
+import { serperService } from '../services/serperService';
+import { cacheService } from '../services/cacheService';
+import { prisma } from '../config/database';
+import { calculateTrendScore, velocity, direction } from '../utils/scoring';
+import { z } from 'zod';
+
+const compareSchema = z.object({
+  keywords: z.array(z.string()).min(2).max(5),
+  geo: z.string().length(2).default('US'),
+});
+
+export const trendController = {
+  
+  async getTrends(req: Request, res: Response) {
+    const { category, direction, limit = '50', offset = '0' } = req.query;
+    
+    const where: any = { isActive: true };
+    if (category) where.category = category;
+    if (direction) where.direction = direction;
+    
+    const keywords = await prisma.keyword.findMany({
+      where,
+      orderBy: { trendScore: 'desc' },
+      take: parseInt(limit as string, 10),
+      skip: parseInt(offset as string, 10),
+      include: { categoryRel: true },
+    });
+
+    res.json({
+      data: keywords,
+      count: keywords.length,
+      offset: parseInt(offset as string, 10),
+    });
+  },
+
+  async getDailyTrends(req: Request, res: Response) {
+    const { geo = 'US' } = req.query;
+    const trends = await googleTrendsService.getDailyTrends(geo as string);
+    
+    // Store trending topics
+    for (const trend of trends.slice(0, 20)) {
+      await prisma.trendingTopic.upsert({
+        where: { id: `${trend.keyword}-${new Date().toISOString().split('T')[0]}` },
+        create: {
+          keyword: trend.keyword,
+          interest: trend.interest,
+          source: 'google_trends',
+          region: geo as string,
+        },
+        update: { interest: trend.interest },
+      });
+    }
+
+    res.json({ data: trends });
+  },
+
+  async getRealtimeTrends(req: Request, res: Response) {
+    const { category = 'all', geo = 'US' } = req.query;
+    const trends = await googleTrendsService.getRealtimeTrends(
+      category as string, geo as string
+    );
+    res.json({ data: trends });
+  },
+
+  async compareKeywords(req: Request, res: Response) {
+    const validation = compareSchema.safeParse(req.query);
+[5/10/2026 4:35 PM] Talisha_bot:     if (!validation.success) {
+[5/10/2026 4:35 PM] Talisha_bot: return res.status(400).json({ error: validation.error.flatten() });
+    }
+
+    const { keywords, geo } = validation.data;
+    const comparison = await googleTrendsService.compareKeywords(keywords, geo);
+    res.json({ data: comparison });
+  },
+
+  async getTimeline(req: Request, res: Response) {
+    const { keywordId } = req.params;
+    const { days = '90' } = req.query;
+
+    const trends = await prisma.trend.findMany({
+      where: { keywordId },
+      orderBy: { date: 'asc' },
+      take: parseInt(days as string, 10),
+    });
+
+    res.json({ data: trends });
+  },
+};
+
+───
+
+5. Cron Jobs (Trend Poller)
+
+// src/jobs/trendPoller.ts
+import cron from 'node-cron';
+import { googleTrendsService } from '../services/googleTrendsService';
+import { serperService } from '../services/serperService';
+import { prisma } from '../config/database';
+import { calculateTrendScore, velocity, direction } from '../utils/scoring';
+
+const SEED_CATEGORIES: Record<string, string[]> = {
+  'seo': ['content marketing', 'link building', 'technical seo', 'keyword research', 'SERP features', 
+          'core web vitals', 'schema markup', 'E-E-A-T', 'AI search', 'GEO optimization'],
+  'ai': ['ChatGPT', 'Gemini', 'Claude', 'AI agents', 'prompt engineering', 'RAG', 
+         'AI coding', 'LLM fine-tuning', 'AI regulation', 'model context protocol'],
+  'saas': ['product-led growth', 'churn rate', 'SaaS metrics', 'customer success', 
+           'onboarding', 'pricing strategy', 'PLG', 'SaaS valuations', 'compliance automation'],
+};
+
+export function startTrendPoller() {
+  // Every 6 hours: pull Google Trends data for tracked keywords
+[5/10/2026 4:35 PM] Talisha_bot: cron.schedule(process.env.TREND_POLL_CRON || '0 */6 * * *', async () => {
+    console.log('🔄 Trend poller starting...');
+    
+    for (const [category, keywords] of Object.entries(SEED_CATEGORIES)) {
+      for (const keyword of keywords) {
+        try {
+          // Get timeline from Google Trends
+          const timeline = await googleTrendsService.getKeywordTimeline(keyword);
+          
+          // Get search volume from Serper
+          const serpData = await serperService.getKeywordData(keyword);
+          
+          // Upsert keyword
+          const kw = await prisma.keyword.upsert({
+            where: { term: keyword },
+            create: {
+              term: keyword,
+              slug: keyword.toLowerCase().replace(/\s+/g, '-'),
+              category,
+              searchVolume: serpData?.searchVolume || 0,
+              difficulty: serpData?.difficulty || 0,
+              cpc: serpData?.cpc || 0,
+            },
+            update: {
+              searchVolume: serpData?.searchVolume || 0,
+              difficulty: serpData?.difficulty || 0,
+              cpc: serpData?.cpc || 0,
+            },
+          });
+
+          // Store trend data points
+          for (const point of timeline) {
+            await prisma.trend.upsert({
+              where: { keywordId_date_source: { keywordId: kw.id, date: point.date, source: 'google_trends' } },
+              create: {
+                keywordId: kw.id,
+                date: point.date,
+                interest: point.interest,
+                source: 'google_trends',
+              },
+              update: { interest: point.interest },
+            });
+          }
+
+          // Calculate and update trend score
+          const recent7 = timeline.slice(-7);
+          const recent30 = timeline.slice(-30);
+          const currentInterest = recent7[recent7.length - 1]?.interest || 0;
+          const weekAgoInterest = recent7[0]?.interest || 0;
+          const monthAgoInterest = recent30[0]?.interest || 0;
+          
+          const velocity7d = velocity(currentInterest, weekAgoInterest);
+          const velocity30d = velocity(currentInterest, monthAgoInterest);
+          const trendDir = direction(velocity7d, velocity30d);
+          
+          const trendScore = calculateTrendScore({
+            currentInterest,
+            searchVolume: serpData?.searchVolume,
+            velocity7d,
+            velocity30d,
+            direction7d: trendDir,
+            direction30d: trendDir,
+          } as any);
+
+          await prisma.keyword.update({
+            where: { id: kw.id },
+            data: {
+              trendScore,
+              velocity: velocity7d,
+              direction: trendDir,
+            },
+          });
+
+          console.log(`✅ Updated: ${keyword} (score: ${trendScore}, direction: ${trendDir})`);
+          
+          // Rate limit: 2s between keywords
+          await new Promise(r => setTimeout(r, 2000));
+        } catch (error: any) {
+          console.error(`❌ Error polling "${keyword}":`, error.message);
+        }
+      }
+    }
+
+    console.log('✅ Trend poller complete');
+  });
+
+  // Daily at midnight: build snapshots
+[5/10/2026 4:35 PM] Talisha_bot: cron.schedule('0 0 * * *', async () => {
+    console.log('📸 Building daily snapshots...');
+    const keywords = await prisma.keyword.findMany({ where: { isActive: true } });
+    
+    for (const kw of keywords) {
+      const latestTrends = await prisma.trend.findMany({
+        where: { keywordId: kw.id },
+        orderBy: { date: 'desc' },
+        take: 30,
+      });
+
+      if (latestTrends.length === 0) continue;
+
+      const current = latestTrends[0];
+      const weekAgo = latestTrends.find(t => {
+        const daysDiff = (current.date.getTime() - t.date.getTime()) / (1000 * 60 * 60 * 24);
+        return Math.abs(daysDiff - 7) < 1.5;
+      });
+      const monthAgo = latestTrends[latestTrends.length - 1];
+
+      await prisma.dailySnapshot.upsert({
+        where: { keywordId_date: { keywordId: kw.id, date: current.date } },
+        create: {
+          keywordId: kw.id,
+          date: current.date,
+          interest: current.interest,
+          velocity7d: weekAgo ? velocity(current.interest, weekAgo.interest) : 0,
+          velocity30d: monthAgo ? velocity(current.interest, monthAgo.interest) : 0,
+          direction7d: direction(
+            weekAgo ? velocity(current.interest, weekAgo.interest) : 0,
+            monthAgo ? velocity(current.interest, monthAgo.interest) : 0
+          ),
+        },
+        update: {
+          interest: current.interest,
+          velocity7d: weekAgo ? velocity(current.interest, weekAgo.interest) : 0,
+          velocity30d: monthAgo ? velocity(current.interest, monthAgo.interest) : 0,
+        },
+      });
+    }
+
+    console.log('✅ Daily snapshots built');
+  });
+
+  console.log('⏰ Trend poller cron jobs started');
+}
+
+───
+
+6. Railway Deployment
+
+# railway.toml
+[build]
+builder = "nixpacks"
+
+[deploy]
+startCommand = "npx prisma migrate deploy && node dist/index.js"
+healthcheckPath = "/api/v1/health"
+healthcheckTimeout = 300
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 10
+
+# Dockerfile (multi-stage for small image)
+FROM node:20-alpine AS builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+RUN npx prisma generate
+RUN npm run build
+
+FROM node:20-alpine AS runner
+WORKDIR /app
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/package.json ./
+ENV NODE_ENV=production
+EXPOSE 3001
+CMD ["npx", "prisma", "migrate", "deploy", "&&", "node", "dist/index.js"]
+
+// package.json scripts
+{
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "db:migrate": "prisma migrate dev",
+    "db:seed": "tsx prisma/seed.ts",
+    "db:studio": "prisma studio",
+    "lint": "eslint src/"
+  }
+}
+
+───
+
+7. Seed Data (Initial Categories + Keywords)
+
+// prisma/seed.ts
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
+
+const categories = [
+  { name: 'SEO & Content Marketing', slug: 'seo', description: 'Search engine optimization, content strategy, and SERP trends', icon: '📊', color: '#06B6D4' },
+  { name: 'AI & Machine Learning', slug: 'ai', description: 'Artificial intelligence, LLMs, AI agents, and automation', icon: '🤖', color: '#8B5CF6' },
+  { name: 'SaaS & Startups', slug: 'saas', description: 'Software-as-a-Service, product-led growth, and startup metrics', icon: '🚀', color: '#10B981' },
+  { name: 'Developer Tools', slug: 'devtools', description: 'Programming, frameworks, and developer experience', icon: '⚡', color: '#F59E0B' },
+  { name: 'Cybersecurity & Compliance', slug: 'security', description: 'InfoSec, compliance frameworks, and data protection', icon: '🔒', color: '#EF4444' },
+  { name: 'Carbon & ESG', slug: 'carbon', description: 'Carbon accounting, ESG reporting, and sustainability', icon: '🌍', color: '#22C55E' },
+];
+[5/10/2026 4:35 PM] Talisha_bot: const seedKeywords: Record<string, string[]> = {
+[5/10/2026 4:35 PM] Talisha_bot: seo: ['content marketing', 'link building', 'technical SEO', 'keyword research', 'SERP features', 'core web vitals', 'schema markup', 'E-E-A-T', 'AI search optimization', 'GEO score', 'content scoring', 'backlink analysis', 'featured snippets', 'zero-click searches', 'topic clusters'],
+  ai: ['ChatGPT', 'Gemini AI', 'Claude AI', 'AI agents', 'prompt engineering', 'RAG architecture', 'AI coding assistants', 'LLM fine-tuning', 'AI regulation', 'model context protocol', 'AI code review', 'AI content detection', 'autonomous agents', 'function calling'],
+  saas: ['product-led growth', 'SaaS churn', 'customer success', 'onboarding optimization', 'pricing strategy', 'PLG metrics', 'SaaS compliance', 'usage-based pricing', 'SaaS valuations', 'net revenue retention', 'expansion revenue', 'freemium conversion'],
+  devtools: ['TypeScript', 'Next.js 14', 'React server components', 'Bun runtime', 'Deno 2', 'edge computing', 'WebAssembly', 'AI code generation', 'dev environments', 'CI/CD pipelines'],
+  security: ['zero trust', 'SBOM', 'software supply chain', 'SOC 2 compliance', 'code provenance', 'GitHub security', 'AI code audit', 'FedRAMP', 'CISA compliance', 'spear phishing'],
+  carbon: ['carbon accounting software', 'ESG reporting', 'scope 3 emissions', 'SBTi targets', 'carbon credits', 'GHG protocol', 'climate disclosure', 'TCFD reporting', 'CSRD compliance', 'supply chain emissions'],
+};
+
+async function main() {
+  console.log('🌱 Seeding categories...');
+  
+  for (const cat of categories) {
+    await prisma.category.upsert({
+      where: { slug: cat.slug },
+      update: cat,
+      create: cat,
+    });
+  }
+
+  console.log('🌱 Seeding keywords...');
+  
+  for (const [slug, keywords] of Object.entries(seedKeywords)) {
+    for (const term of keywords) {
+      await prisma.keyword.upsert({
+        where: { slug: term.toLowerCase().replace(/\s+/g, '-') },
+        update: { category: slug },
+        create: {
+          term,
+          slug: term.toLowerCase().replace(/\s+/g, '-'),
+          category: slug,
+          source: 'seed',
+        },
+      });
+    }
+  }
+
+  console.log('✅ Seed complete');
+}
+
+main()
+  .catch(console.error)
+  .finally(() => prisma.$disconnect());
+
+───
+
+8. SEO AI Regent Cross-Sell Integration
+
+This is the money play. Every trend page should have a CTA pointing to SEO AI Regent.
+
+// src/controllers/keywordController.ts — enhanced with Regent CTA
+
+const REGENT_CTA = {
+  headline: 'Ready to rank for this keyword?',
+  description: 'SEO AI Regent analyzes your content against trending keywords and gives you a 0-100 optimization score with actionable fixes.',
+  cta: 'Start Free Trial',
+  url: 'https://seo-ai-regent.com/?ref=keyword-trend-api',
+};
+
+// Add to list endpoint response:
+res.json({
+  data: keywords,
+  _meta: {
+    regent_cta: REGENT_CTA,
+    total: keywords.length,
+    offset: parseInt(offset as string, 10),
+  },
+});
+
+───
+
+9. Railway Deployment Steps
+
+# 1. Create Neon PostgreSQL database
+# Go to console.neon.tech → Create project → "keyword-trends"
+
+# 2. Create Upstash Redis
+# Go to console.upstash.com → Create database → "keyword-trend-cache"
+
+# 3. Create Railway project
+railway login
+railway init  # Select "keyword-trend-api"
+railway add --database postgres  # Or link Neon via DATABASE_URL
+
+# 4. Set environment variables
+railway variables set DATABASE_URL="postgresql://..."
+railway variables set REDIS_URL="rediss://..."
+railway variables set SERPER_API_KEY="your-key"
+railway variables set INSFORGE_API_KEY="ik_sehrni5g1w9ptlg52cx3sx32nlrvsgmz"
+railway variables set NODE_ENV="production"
+railway variables set PORT="3001"
+
+# 5. Deploy
+railway up
+
+# 6. Run migrations
+railway run npx prisma migrate deploy
+
+# 7. Seed database
+railway run npx tsx prisma/seed.ts
+
+───
+
+10. Monetization Strategy
+
+| Tier       | Price  | Included                                                             |
+[5/10/2026 4:35 PM] Talisha_bot: | ---------- | ------ | -------------------------------------------------------------------- |
+[5/10/2026 4:35 PM] Talisha_bot: | Free       | $0     | 100 API calls/day, 7-day history, basic trends                       |
+| Starter    | $29/mo | 1,000 calls/day, 90-day history, category filtering                  |
+| Growth     | $99/mo | 10,000 calls/day, 365-day history, comparison, leaderboard, webhooks |
+| Enterprise | Custom | Unlimited, custom categories, white-label, SLA                       |
+
+Revenue channels:
+
+1. API subscriptions (primary)
+2. SEO AI Regent cross-sell (each trend page shows Regent CTA — drives trial signups)
+3. Premium newsletters (weekly "Trending Keywords in AI/SaaS" email digest)
+4. Data licensing (sell trend datasets to SEO agencies)
+
+───
+
+11. Domain & Landing Page
+
+• Domain: Register keywordtrendindex.com or trendindex.io
+• Landing page: Simple Next.js page with:
+  • Live trending keywords widget (API-powered)
+  • "Try SEO AI Regent" CTA banner
+  • API documentation link
+  • Pricing table
+• SEO strategy: Each keyword gets its own indexable page (/keyword/ai-agents → ranks for "AI agents trend")
+
+───
+
+That's the full playbook. Key decisions baked in:
+
+• InsForge as the backend framework (per your architecture)
+• Google Trends API (free, unofficial but battle-tested) for trend data
+• Serper.dev (already in SEO AI Regent's stack) for search volume
+• Neon PostgreSQL (serverless, scales to zero, generous free tier)
+• Upstash Redis (serverless, per-request pricing, perfect for Railway)
+• Seed categories are strategically aligned with your SaaS portfolio (SEO, AI, SaaS, Carbon, Security)
+• SEO AI Regent cross-sell is embedded in every API response from day one
+

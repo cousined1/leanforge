@@ -1,0 +1,55 @@
+opencode-design — License
+
+Copyright (c) 2026 — built as an English-language adaptation, inspired by
+huashu-design (alchaincyf/huashu-design) and Anthropic's Claude Design pattern.
+
+PERSONAL AND EDUCATIONAL USE
+============================
+
+You are free to:
+
+  • Install and run this skill on your own machines, in your own agent
+    environments (OpenCode, Claude Code, Codex, Cursor, OpenClaw, etc.).
+  • Modify the skill for your personal workflow.
+  • Use the skill to produce designs for your own personal, educational,
+    research, or hobby projects.
+  • Share modified copies with friends and colleagues for the same kinds
+    of personal use, provided this LICENSE and the credits in README.md
+    are preserved.
+
+COMMERCIAL USE
+==============
+
+Commercial use of this skill — including, but not limited to:
+
+  • Using the skill to produce client deliverables for paid work
+  • Embedding the skill (or substantial portions of its references/
+    or assets/) in a commercial product
+  • Reselling, sublicensing, or offering the skill as a paid service
+  • Including the skill in a paid skill marketplace or commercial
+    skill bundle
+
+— requires written permission from the maintainers of this fork AND
+compliance with the upstream huashu-design author's commercial-use
+terms (see https://github.com/alchaincyf/huashu-design ).
+
+CREDITS REQUIRED
+================
+
+Any redistribution, modified or unmodified, must keep the following
+credits visible in the README or equivalent:
+
+  • huashu-design (alchaincyf/huashu-design) — upstream architecture
+  • Anthropic Claude Design — original specialist-design pattern
+  • opencode-design — this English adaptation
+
+NO WARRANTY
+===========
+
+THE SKILL IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SKILL OR THE USE OR OTHER DEALINGS IN THE SKILL.

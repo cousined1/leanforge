@@ -1,0 +1,24 @@
+Add production-ready Google Tag Manager to this SaaS app.
+
+Requirements:
+1. Detect the framework and place GTM in the correct root layout/app shell.
+2. Use an env var named NEXT_PUBLIC_GTM_ID (or framework-equivalent public env).
+3. Create a reusable analytics module with:
+   - initAnalytics()
+   - trackPageView(url, title, referrer?)
+   - trackEvent(name, params)
+4. This app is a SPA, so track virtual pageviews on client-side route changes.
+5. Do not duplicate pageviews if GTM/GA4 enhanced measurement is already handling history changes; document which layer owns pageviews.
+6. Add consent-ready structure:
+   - one place to gate analytics until consent is granted
+   - no tracking in local/dev unless explicitly enabled
+7. Add dataLayer event examples for:
+   - signup_started
+   - signup_completed
+   - trial_started
+   - subscription_purchased
+8. Update README with:
+   - where to put GTM ID
+   - how to verify in GA4 DebugView
+   - how to test route changes
+9. Show the exact files changed and explain any framework caveats.
