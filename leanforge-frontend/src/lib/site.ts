@@ -1,4 +1,6 @@
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://lean-forge.net';
+export const regentPartnerUrl =
+  process.env.NEXT_PUBLIC_REGENT_PARTNER_URL || 'https://seo-ai-regent.com/?ref=keyword-trend-api';
 
 export const siteConfig = {
   url: SITE_URL,

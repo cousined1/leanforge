@@ -6,6 +6,7 @@ import { LogOut, Search, User } from 'lucide-react';
 import { useAuth } from '@/components/AuthProvider';
 import { routes, headerNavRoutes } from '@/lib/routes';
 import { MobileNav } from '@/components/MobileNav';
+import { regentPartnerUrl } from '@/lib/site';
 
 export function Header() {
   const { user, loading, signOut } = useAuth();
@@ -66,18 +67,15 @@ export function Header() {
                 <span className="hidden sm:inline">Sign out</span>
               </button>
             </div>
-          ) : (
-            <Link href="/sign-in" className="hidden md:inline-block">
-              <button className="btn-outline px-4 py-2 text-sm">
-                Sign in
-              </button>
-            </Link>
-          )}
-          <Link href="https://seo-ai-regent.com/?ref=keyword-trend-api" className="hidden md:inline-block">
-            <button className="btn-primary px-4 py-2 text-sm">
-              Start Free Trial
-            </button>
-          </Link>
+          ) : null}
+          <a
+            href={regentPartnerUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hidden md:inline-block btn-primary px-4 py-2 text-sm"
+          >
+            Try SEO AI Regent
+          </a>
           <MobileNav />
         </div>
       </div>

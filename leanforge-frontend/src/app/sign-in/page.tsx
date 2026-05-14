@@ -26,7 +26,7 @@ export default function SignInPage() {
         <div className="container max-w-3xl">
           <h1 className="text-3xl font-bold mb-2">Sign in</h1>
           <p className="text-muted-foreground">
-            Access LeanForge with a configured social identity provider.
+            Sign in with Google or Apple to save your progress as new account features roll out.
           </p>
         </div>
       </section>

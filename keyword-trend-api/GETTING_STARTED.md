@@ -227,7 +227,7 @@ curl "http://localhost:3001/api/v1/trends/compare?keywords=ChatGPT,Claude,Gemini
 
 ### Get Keyword Timeline
 ```bash
-curl "http://localhost:3001/api/v1/trends/KEYWORD_ID/timeline?days=30"
+curl "http://localhost:3001/api/v1/trends/KEYWORD_ID/timeline?limit=30&offset=0"
 ```
 
 ## Data Model

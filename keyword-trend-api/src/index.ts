@@ -4,13 +4,16 @@ import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
 import { config } from './config/env';
-import { getRedisClient } from './config/redis';
 import { apiRoutes } from './routes/apiRoutes';
 import { errorHandler } from './middleware/errorHandler';
 import { rateLimiter } from './middleware/rateLimiter';
 import { requestLogger } from './middleware/requestLogger';
 import { startTrendPoller } from './jobs/trendPoller';
 import { prisma } from './config/database';
+import { closeRedisClient, getRedisClient } from './config/redis';
+import { initializeMonitoring, Sentry } from './config/monitoring';
+
+initializeMonitoring();
 
 const app = express();
 const allowedOrigins =
@@ -30,6 +33,17 @@ if (config.NODE_ENV === 'production') {
 // Security & compression
 app.use(helmet());
 app.use(compression());
+app.use((req, res, next) => {
+  if (
+    config.ENFORCE_HTTPS &&
+    req.headers['x-forwarded-proto'] !== 'https' &&
+    !req.secure
+  ) {
+    return res.redirect(308, `https://${req.headers.host}${req.originalUrl}`);
+  }
+
+  next();
+});
 app.use(
   cors({
     origin: allowedOrigins,
@@ -44,29 +58,22 @@ app.use(rateLimiter);
 // Request logging
 app.use(requestLogger);
 
-// Health check with DB + Redis verification
+// Health check early return
 app.get('/health', async (_req, res) => {
   try {
-    const [dbOk, redisOk] = await Promise.all([
-      prisma.$queryRaw`SELECT 1`.
-        then(() => true).catch(() => false),
-      getRedisClient().ping().then(() => true).catch(() => false),
-    ]);
+    await prisma.$queryRaw`SELECT 1`;
+    const redis = getRedisClient();
+    await redis.ping();
 
-    const status = dbOk && redisOk ? 'ok' : 'degraded';
-    const statusCode = status === 'ok' ? 200 : 503;
-
-    res.status(statusCode).json({
-      status,
-      database: dbOk ? 'up' : 'down',
-      redis: redisOk ? 'up' : 'down',
+    res.json({
+      status: 'ok',
       timestamp: new Date().toISOString(),
     });
-  } catch {
+  } catch (error) {
+    console.error('Health check failed:', error);
     res.status(503).json({
       status: 'error',
-      database: 'unknown',
-      redis: 'unknown',
+      message: 'Dependency health check failed',
       timestamp: new Date().toISOString(),
     });
   }
@@ -102,7 +109,6 @@ process.on('SIGTERM', async () => {
   console.log('SIGTERM received, shutting down gracefully...');
   server.close(async () => {
     await prisma.$disconnect();
-    const { closeRedisClient } = await import('./config/redis');
     await closeRedisClient();
     process.exit(0);
   });
@@ -112,10 +118,19 @@ process.on('SIGINT', async () => {
   console.log('SIGINT received, shutting down gracefully...');
   server.close(async () => {
     await prisma.$disconnect();
-    const { closeRedisClient } = await import('./config/redis');
     await closeRedisClient();
     process.exit(0);
   });
+});
+
+process.on('uncaughtException', (error) => {
+  console.error('Uncaught exception:', error);
+  Sentry.captureException(error);
+});
+
+process.on('unhandledRejection', (reason) => {
+  console.error('Unhandled promise rejection:', reason);
+  Sentry.captureException(reason instanceof Error ? reason : new Error(String(reason)));
 });
 
 export default app;

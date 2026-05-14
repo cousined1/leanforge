@@ -1,0 +1,505 @@
+================================================================================
+LEANFORGE KEYWORD TREND INDEX — MVP AUDIT
+Date: 2026-05-13
+Auditor: Claude Sonnet 4.6 (automated audit)
+Scope: Full codebase review — backend, frontend, infrastructure, security,
+       monetization, data pipeline, and deployment readiness
+================================================================================
+
+OVERALL VERDICT: NOT LAUNCH-READY
+Score: 61 / 100
+
+The project is architecturally solid and looks complete on the surface, but
+has several critical gaps that would mislead users or break core promises
+on day one. Six blockers must be resolved before a public launch. Fourteen
+high/medium issues should be addressed in the first sprint post-launch.
+
+================================================================================
+SECTION 1 — CRITICAL BLOCKERS (Fix before launch)
+================================================================================
+
+[BLOCKER-1] PRICING IS FAKE — NO PAYMENT PROCESSING EXISTS
+-----------------------------------------------------------------
+File: leanforge-frontend/src/app/pricing/page.tsx (lines 43, 58)
+
+The pricing page shows three paid tiers ($29/mo Starter, $99/mo Growth,
+Custom Enterprise) with "Start Free Trial" CTAs. Both paid CTAs redirect to
+https://seo-ai-regent.com/?ref=keyword-trend-api — a different product.
+There is no Stripe integration, no checkout flow, no subscription management,
+and no API key issuance tied to paid plans.
+
+Impact: Users who click "Start Free Trial" leave LeanForge entirely. There is
+zero revenue path for LeanForge itself. The pricing page actively misleads
+visitors.
+
+Fix options:
+  A. Remove paid tiers and launch as a pure free lead-gen tool for Regent.
+     Update pricing page to reflect this honestly.
+  B. Integrate Stripe Checkout + webhooks, issue per-user API keys,
+     and enforce tier limits in the API middleware.
+
+Recommendation: Option A for MVP speed. Option B for a real SaaS.
+
+
+[BLOCKER-2] TIER ENFORCEMENT DOES NOT EXIST
+-----------------------------------------------------------------
+Files: keyword-trend-api/src/middleware/rateLimiter.ts,
+       keyword-trend-api/src/middleware/auth.ts,
+       keyword-trend-api/src/config/env.ts (line 22)
+
+The pricing page promises:
+  - Free: 100 API calls/day
+  - Starter: 1,000 API calls/day
+  - Growth: 10,000 API calls/day
+
+The actual rate limiter (rateLimiter.ts) is IP-based at 100 requests per
+15 minutes globally — not per user, not per day. There are no user accounts,
+no API keys per user, no subscription tier records. Anyone can exceed the
+"free" limit by simply rotating IPs.
+
+Impact: Every promise on the pricing page is unenforceable. If you ever do
+charge users, they can trivially abuse the system.
+
+Fix: Until payment processing exists, change the pricing page copy to remove
+specific call limits, or be honest that enforcement is not in place yet.
+
+
+[BLOCKER-3] INSFORGE AUTH DOES NOT GATE ANYTHING
+-----------------------------------------------------------------
+Files: leanforge-frontend/src/lib/insforge.ts,
+       leanforge-frontend/src/app/sign-in/page.tsx,
+       keyword-trend-api/src/routes/apiRoutes.ts
+
+Users can sign in via Google/Apple OAuth through InsForge. However:
+  - No frontend page or feature is gated behind auth
+  - No backend endpoint requires a user JWT (only the admin API_SECRET_KEY)
+  - There is no user profile, saved keywords, watchlist, or personalized
+    feature to motivate signing in
+  - The InsForge env vars (NEXT_PUBLIC_INSFORGE_URL, NEXT_PUBLIC_INSFORGE_ANON_KEY)
+    are not in the backend Zod env schema, meaning they can be silently
+    missing and sign-in will silently fail (isInsForgeConfigured = false)
+
+Impact: The sign-in button is a dead end. Users who sign up get nothing for it.
+
+Fix: Either add one concrete authenticated feature (saved keywords, watchlist,
+email alerts) or remove the sign-in flow from the nav until it has value.
+Also add the InsForge env vars to the frontend .env.example with clear
+instructions on how to obtain them.
+
+
+[BLOCKER-4] API_SECRET_KEY HAS AN INSECURE HARDCODED DEFAULT
+-----------------------------------------------------------------
+File: keyword-trend-api/src/config/env.ts (line 10)
+
+  API_SECRET_KEY: z.string().min(32).default('dev-only-api-secret-key-change-in-production-32chars')
+
+If this variable is not set in production (Railway), the app boots with the
+publicly-known default key. Anyone who reads this codebase can use that key
+to POST/PUT/DELETE keywords without authorization.
+
+Fix: Remove the default value entirely. Let Zod fail validation if it is missing:
+  API_SECRET_KEY: z.string().min(32),
+This forces the deployer to set it explicitly in Railway env vars.
+
+
+[BLOCKER-5] TREND POLLER COVERS ONLY 29 OF 80+ KEYWORDS
+-----------------------------------------------------------------
+File: keyword-trend-api/src/jobs/trendPoller.ts (lines 9–44)
+
+The SEED_CATEGORIES constant in trendPoller.ts hardcodes 3 categories and
+~29 keywords (seo: 10, ai: 10, saas: 9). The database seed file loads 80+
+keywords across 6 categories (SEO, AI, SaaS, DevTools, Security, Carbon).
+
+The poller does NOT query the database for the full keyword list — it only
+polls its hardcoded subset. The other ~51 keywords will never have trend
+data updated after the initial seed run. Their trendScores will be stale.
+
+Fix: Replace the hardcoded SEED_CATEGORIES with a database query:
+  const keywords = await prisma.keyword.findMany({ where: { isActive: true } });
+  for (const kw of keywords) { /* poll kw.term */ }
+
+
+[BLOCKER-6] HEALTH CHECK ENDPOINT IS SHALLOW
+-----------------------------------------------------------------
+File: keyword-trend-api/src/routes/apiRoutes.ts (lines 32–34)
+
+  apiRoutes.get('/health', (_req, res) => {
+    res.json({ status: 'ok', timestamp: new Date().toISOString() });
+  });
+
+This always returns 200 OK regardless of whether the database or Redis are
+reachable. Railway uses this endpoint for health checks. If the DB connection
+drops, Railway will think the service is healthy and will not restart it.
+
+Fix:
+  apiRoutes.get('/health', async (_req, res) => {
+    try {
+      await prisma.$queryRaw`SELECT 1`;
+      res.json({ status: 'ok', db: 'ok', timestamp: new Date().toISOString() });
+    } catch {
+      res.status(503).json({ status: 'error', db: 'unreachable' });
+    }
+  });
+
+
+================================================================================
+SECTION 2 — HIGH PRIORITY ISSUES (Fix in first sprint)
+================================================================================
+
+[HIGH-1] TRENDPOLLER CATEGORY FIELD IS A STRING, NOT A FOREIGN KEY
+-----------------------------------------------------------------
+File: keyword-trend-api/src/jobs/trendPoller.ts (lines 62–76)
+
+The trendPoller upserts keywords with `category: category` where category is
+a string like 'seo', 'ai', 'saas'. The Prisma schema has a Category model
+with a UUID primary key and a categoryId FK on Keyword. Writing a raw string
+will either fail or silently populate the wrong field.
+
+Verify: Check prisma/schema.prisma to confirm whether Keyword.category is a
+plain String field or a relation to Category. If it is a relation, the poller
+must resolve the category slug to a UUID before each upsert.
+
+
+[HIGH-2] VELOCITY SCORING USES ABS() — HIDES FALLING KEYWORDS
+-----------------------------------------------------------------
+File: keyword-trend-api/src/utils/scoring.ts (line 24)
+
+  const velocity7dScore = normalize(Math.abs(snapshot.velocity7d || 0), 0, 200);
+
+Taking the absolute value means a keyword falling at -150%/week gets the same
+velocity contribution as one rising at +150%/week. A rapidly declining keyword
+can still score highly. The direction consistency signal (15%) partially
+compensates, but the composite score will be misleadingly elevated for falling
+keywords.
+
+Fix: Normalize velocity including sign (e.g., range -200 to +200),
+or apply a direction multiplier (penalize the velocity score when falling).
+
+
+[HIGH-3] NO MONITORING OR ERROR ALERTING IN PRODUCTION
+-----------------------------------------------------------------
+File: PROJECT_COMPLETION_SUMMARY.md (line 717) — claims "Monitoring/alerting enabled"
+
+There is no Sentry, Datadog, Logtail, or any error tracking service configured
+in the codebase. Cron job failures are console.error() only. If the trend
+poller silently fails for days, there is no alert.
+
+Fix: Add Sentry SDK to the backend. At minimum, instrument the cron jobs:
+  import * as Sentry from '@sentry/node';
+  Sentry.captureException(error); // in each catch block in trendPoller.ts
+
+
+[HIGH-4] PUBLIC ASSETS DIRECTORY IS EMPTY — NO FAVICON OR OG:IMAGE
+-----------------------------------------------------------------
+File: leanforge-frontend/public/ (empty)
+
+There is no favicon.ico, no apple-touch-icon, no og:image, and no logo file.
+Social shares and browser tabs will show blank or default icons. Google and
+Facebook link previews will have no image.
+
+Fix: Add at minimum:
+  public/favicon.ico
+  public/favicon.svg
+  public/og-image.png  (1200x630px for social sharing)
+
+
+[HIGH-5] TRENDINGTOPIC TABLE HAS NO CLEANUP JOB
+-----------------------------------------------------------------
+File: keyword-trend-api/src/jobs/trendPoller.ts
+
+TrendingTopic rows are inserted but never deleted. After months of 6-hour
+polling, this table will grow large (80+ keywords x 4/day x 365 days =
+116,800+ rows/year minimum).
+
+Fix: Add a cleanup step at the end of the daily snapshot cron:
+  await prisma.trendingTopic.deleteMany({
+    where: { capturedAt: { lt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) } }
+  });
+
+
+[HIGH-6] CORS ORIGINS NOT CONFIGURED — DEFAULTS TO PERMISSIVE
+-----------------------------------------------------------------
+File: keyword-trend-api/src/config/env.ts (lines 13–19)
+
+CORS_ORIGINS is optional. If not set in production, Express cors() with no
+origin whitelist will allow requests from any domain.
+
+Fix: Set CORS_ORIGINS in Railway production env vars:
+  CORS_ORIGINS=https://lean-forge.net,https://www.lean-forge.net
+
+And add a validation warning when NODE_ENV=production and CORS_ORIGINS is
+not set.
+
+
+[HIGH-7] NO SEARCH FUNCTIONALITY ON KEYWORDS PAGE
+-----------------------------------------------------------------
+File: leanforge-frontend/src/app/keywords/page.tsx
+
+The keywords browsing page has category filters but no search input. With 80+
+keywords and more being added over time, this page will be nearly unusable
+without text search.
+
+Self-identified as "short-term (1-2 weeks)" in the roadmap — should be treated
+as launch-adjacent for a keyword intelligence tool.
+
+
+================================================================================
+SECTION 3 — MEDIUM PRIORITY ISSUES (Fix within 30 days)
+================================================================================
+
+[MED-1] DEPLOYMENT TOPOLOGY INCONSISTENCY
+-----------------------------------------------------------------
+File: railway.json, PROJECT_COMPLETION_SUMMARY.md (lines 213–218)
+
+The PROJECT_COMPLETION_SUMMARY says "Frontend: Vercel" but railway.json
+configures both backend and frontend for Railway. Clarify the actual
+deployment target. If frontend is on Railway, remove Vercel references.
+If on Vercel, remove the frontend block from railway.json.
+
+
+[MED-2] DIRECTION THRESHOLDS ARE ASYMMETRIC
+-----------------------------------------------------------------
+File: keyword-trend-api/src/utils/scoring.ts (lines 54–61)
+
+  if (velocity7d > 10 && velocity30d > 0) return 'rising';
+  if (velocity7d < -10 || velocity30d < -10) return 'falling';
+
+Rising requires BOTH conditions. Falling requires EITHER condition. Falling
+is much easier to trigger than rising. A keyword that spiked for 7 days but
+has a slightly negative 30d trend (-0.1%) is classified 'flat', not 'rising'
+— counter-intuitive for users.
+
+Consider symmetric thresholds or document the intentional asymmetry clearly.
+
+
+[MED-3] GOOGLE TRENDS API DEPENDENCY IS FRAGILE
+-----------------------------------------------------------------
+File: keyword-trend-api/src/services/googleTrendsService.ts
+
+google-trends-api (npm) is an unofficial, reverse-engineered client. Google
+has no public API and has blocked/rate-limited this package repeatedly.
+A production product should not rely on it as the sole data source.
+
+Mitigation: Cache aggressively (already doing 1-2h TTL in Redis — good). Add
+error handling that surfaces stale-cache data when the API is unavailable
+rather than returning empty arrays. Consider SerpAPI or DataForSEO as paid
+backup sources for production reliability.
+
+
+[MED-4] NO PAGINATION ON TREND TIMELINE ENDPOINT
+-----------------------------------------------------------------
+File: keyword-trend-api/src/controllers/trendController.ts
+
+The /trends/:keywordId/timeline endpoint returns 90-day history without
+pagination. As data accumulates over years, this will become slow without a
+LIMIT applied. Add default pagination: take: 90, skip: offset.
+
+
+[MED-5] SIGN-IN PAGE HAS DEVELOPER-FACING COPY
+-----------------------------------------------------------------
+File: leanforge-frontend/src/app/sign-in/page.tsx (line 7)
+
+"Access LeanForge with a configured social identity provider."
+
+This is developer-speak, not user-friendly copy. Rewrite for a non-technical
+audience. Also add proper messaging for the case where InsForge is not
+configured (isInsForgeConfigured === false), so the user sees a helpful
+message rather than a broken UI.
+
+
+[MED-6] CRON JOB OVERLAP NOT PREVENTED
+-----------------------------------------------------------------
+File: keyword-trend-api/src/jobs/trendPoller.ts
+
+The 6-hour poller runs 29 keywords at 2s each = 58 seconds minimum. At 80+
+keywords this grows to ~3 minutes. If Serper.dev is slow (5-10s per call),
+a single run could approach or exceed 6 hours, causing overlap with the next
+scheduled run.
+
+Fix: Add a Redis-based mutex flag:
+  const lock = await redis.set('poller:lock', '1', 'EX', 21600, 'NX');
+  if (!lock) { console.warn('Poller already running, skipping'); return; }
+
+
+[MED-7] REGENT CTA LINKS HARDCODED IN MULTIPLE PLACES
+-----------------------------------------------------------------
+Files: leanforge-frontend/src/app/pricing/page.tsx (lines 43, 58),
+       leanforge-frontend/src/components/RegentCTA.tsx (and others)
+
+The Regent referral URL (https://seo-ai-regent.com/?ref=keyword-trend-api)
+is hardcoded in multiple files. Move to a single constant in lib/site.ts
+so the ref parameter can be updated globally in one place.
+
+
+================================================================================
+SECTION 4 — SECURITY AUDIT
+================================================================================
+
+SCORE: 72 / 100
+
+PASS:
+  [+] Helmet configured (CSP, HSTS, X-Frame-Options, etc.)
+  [+] Rate limiting in place (IP-based, 100 req/15min)
+  [+] CORS headers configured via env var
+  [+] Prisma ORM throughout — no raw SQL injection risk
+  [+] Zod input validation on environment variables at startup
+  [+] Timing-safe API key comparison (crypto.timingSafeEqual)
+  [+] HTTPS enforced via HSTS header in next.config.js
+  [+] HttpOnly cookies assumed via InsForge SDK
+
+FAIL:
+  [-] API_SECRET_KEY has a hardcoded default (see BLOCKER-4)
+  [-] Health check always returns 200 regardless of DB state (see BLOCKER-6)
+  [-] No request body size limits on POST endpoints (allows large payloads)
+  [-] Query params on list endpoints (category, limit, offset) need
+      server-side validation — confirm controllers sanitize these
+  [-] No audit log for admin write operations (who called POST/PUT/DELETE,
+      when, from what IP)
+
+
+================================================================================
+SECTION 5 — DATA PIPELINE AUDIT
+================================================================================
+
+SCORE: 68 / 100
+
+PASS:
+  [+] Two cron jobs: 6-hour trend poll + midnight daily snapshot
+  [+] Redis caching with TTL reduces Google Trends API call volume
+  [+] Upsert semantics throughout (idempotent, safe to re-run)
+  [+] Per-keyword error handling — one bad keyword does not kill the batch
+  [+] 2-second delay between keywords (rate limit mitigation)
+  [+] Serper.dev for search volume enrichment (real commercial data)
+
+FAIL:
+  [-] Only 29 of 80+ keywords polled (BLOCKER-5)
+  [-] Google Trends API is unofficial and fragile (MED-3)
+  [-] No monitoring or alerting on job failures (HIGH-3)
+  [-] TrendingTopic table grows unbounded (HIGH-5)
+  [-] Daily snapshot 30d window uses last 30 records, not records from
+      exactly 30 days ago — velocity30d may be inaccurate if polling gaps
+      exist
+  [-] No mutex to prevent overlapping cron runs (MED-6)
+
+
+================================================================================
+SECTION 6 — MONETIZATION READINESS
+================================================================================
+
+SCORE: 10 / 100
+
+The pricing page exists and looks professional. That is where monetization
+readiness ends.
+
+MISSING:
+  - Stripe integration (checkout, webhooks, subscription management)
+  - User accounts tied to payment plans
+  - Per-user API key issuance and rate limiting
+  - Subscription tier enforcement in the API layer
+  - Invoice / billing portal
+  - Trial period logic
+  - Upgrade / downgrade flows
+  - Cancellation handling
+
+RECOMMENDATION:
+If the goal is to monetize LeanForge directly, this is a multi-week build.
+If the goal is to use LeanForge as a free lead-gen funnel for SEO AI Regent,
+remove paid tiers from the pricing page and be transparent: this tool is
+free, and Regent is the paid product it supports. That is the honest and
+faster path to launch.
+
+
+================================================================================
+SECTION 7 — FRONTEND QUALITY
+================================================================================
+
+SCORE: 78 / 100
+
+PASS:
+  [+] Next.js 14 App Router — modern, well-supported stack
+  [+] TypeScript strict mode throughout
+  [+] TanStack Query for async data fetching
+  [+] Recharts for trend visualization
+  [+] Responsive design (mobile / tablet / desktop)
+  [+] Structured data (JSON-LD) for SEO
+  [+] Dynamic sitemap and robots.txt
+  [+] Cookie consent component present
+  [+] Error boundaries configured
+  [+] Breadcrumb navigation on all pages
+  [+] Security headers in next.config.js (CSP, HSTS, etc.)
+  [+] GTM integration present
+
+FAIL:
+  [-] Public assets directory is empty — no favicon, no og:image (HIGH-4)
+  [-] No keyword search functionality (HIGH-7)
+  [-] Sign-in flow has no authenticated value proposition (BLOCKER-3)
+  [-] Regent CTA links hardcoded in multiple places (MED-7)
+  [-] Marketing pages (about, features, faq, help) need content review
+  [-] Legal pages (privacy, terms, disclaimer) need legal review before
+      public launch
+
+
+================================================================================
+SECTION 8 — LAUNCH CHECKLIST (prioritized)
+================================================================================
+
+MUST DO BEFORE LAUNCH:
+
+  [ ] Remove hardcoded API_SECRET_KEY default from env.ts
+  [ ] Fix health check to verify actual DB connectivity
+  [ ] Fix trendPoller to query all database keywords, not hardcoded subset
+  [ ] Decide auth strategy: add one gated feature OR remove sign-in from nav
+  [ ] Update pricing page to reflect honest offering (remove fake paid tiers
+      or wire up real payment processing)
+  [ ] Add favicon + og:image to public/
+
+SHOULD DO BEFORE LAUNCH:
+
+  [ ] Add keyword search to the keywords page
+  [ ] Set CORS_ORIGINS in Railway production env vars
+  [ ] Confirm NEXT_PUBLIC_INSFORGE_URL + ANON_KEY are set in Vercel/Railway
+  [ ] Add Sentry or similar error monitoring to backend cron jobs
+  [ ] Add TrendingTopic cleanup to daily cron
+  [ ] Resolve deployment topology (Railway vs Vercel for frontend — pick one)
+  [ ] Review and write real content for marketing and legal pages
+  [ ] Run one full end-to-end test: visit site → browse keywords → view chart
+
+DO FIRST SPRINT POST-LAUNCH:
+
+  [ ] Add Redis mutex to prevent overlapping cron runs
+  [ ] Add server-side input validation on query params in controllers
+  [ ] Fix velocity scoring (remove abs() or apply direction multiplier)
+  [ ] Add request body size limits to POST endpoints
+  [ ] Consolidate Regent CTA URL to a single constant in lib/site.ts
+  [ ] Verify trendPoller category field matches schema FK or String type
+  [ ] Add pagination to trend timeline endpoint
+  [ ] Consider paid Google Trends data source (SerpAPI / DataForSEO)
+
+
+================================================================================
+SUMMARY TABLE
+================================================================================
+
+Area                         Score    Status
+-------------------------------  -----    --------
+Architecture / Code Quality      82/100   GOOD
+Backend API                      79/100   GOOD
+Frontend UI                      78/100   GOOD
+Security                         72/100   NEEDS WORK
+Data Pipeline                    68/100   NEEDS WORK
+Deployment Readiness             65/100   NEEDS WORK
+Auth / User Accounts             30/100   CRITICAL
+Monetization                     10/100   CRITICAL
+
+OVERALL MVP SCORE:               61/100   NOT LAUNCH-READY
+
+Critical blockers to resolve:    6
+High priority issues:            7
+Medium priority issues:          7
+
+Estimated time to clear blockers:       1–2 focused days
+Estimated time to clear high priority:  +1 week
+
+================================================================================
+END OF AUDIT
+================================================================================

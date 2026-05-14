@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="LeanForge">
+  <defs>
+    <linearGradient id="lfg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0b5fff"/>
+      <stop offset="100%" stop-color="#11b49a"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="url(#lfg)"/>
+  <path d="M18 18h8v28h20v8H18z" fill="#ffffff"/>
+  <path d="M30 18h8v20h14v8H30z" fill="#d8f4ff"/>
+</svg>

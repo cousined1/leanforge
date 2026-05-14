@@ -82,7 +82,7 @@ model Category {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
-  keywords    Keyword[] @relation(referencedBy: "category")
+  keywords    Keyword[]
 
   @@index([slug])
 }

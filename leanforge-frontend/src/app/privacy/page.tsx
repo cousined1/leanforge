@@ -156,12 +156,6 @@ export default function PrivacyPage() {
               </a>.
             </p>
 
-            <p className="text-xs text-muted-foreground mt-8 pt-6 border-t">
-              <strong>Review note:</strong> This privacy policy is a draft for review.
-              If additional processors or analytics services are added to the Service,
-              this policy must be updated before use.
-            </p>
-
             <div className="flex gap-4 pt-4">
               <Link href="/" className="text-sm text-primary hover:underline">
                 ← Back to Home

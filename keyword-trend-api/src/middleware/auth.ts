@@ -1,15 +1,16 @@
 import { Request, Response, NextFunction } from 'express';
 import crypto from 'crypto';
+import { config } from '../config/env';
 
-const API_SECRET_KEY = process.env.API_SECRET_KEY;
+function hashKey(key: string): Buffer {
+  return crypto.createHash('sha256').update(key).digest();
+}
+
+function secureCompare(providedKey: string, expectedKey: string): boolean {
+  return crypto.timingSafeEqual(hashKey(providedKey), hashKey(expectedKey));
+}
 
 export function requireApiKey(req: Request, res: Response, next: NextFunction): void {
-  if (!API_SECRET_KEY) {
-    console.error('[AUTH] API_SECRET_KEY not configured — rejecting request');
-    res.status(500).json({ error: 'Server configuration error' });
-    return;
-  }
-
   const providedKey = req.headers['x-api-key'] as string | undefined;
 
   if (!providedKey) {
@@ -20,13 +21,11 @@ export function requireApiKey(req: Request, res: Response, next: NextFunction): 
     return;
   }
 
-  const providedHash = crypto.createHash('sha256').update(providedKey).digest('hex');
-  const expectedHash = crypto.createHash('sha256').update(API_SECRET_KEY).digest('hex');
-
-  const isValid = crypto.timingSafeEqual(
-    Buffer.from(providedHash, 'hex'),
-    Buffer.from(expectedHash, 'hex')
-  );
+  const isValid =
+    secureCompare(providedKey, config.API_SECRET_KEY) ||
+    (config.API_SECRET_KEY_NEXT
+      ? secureCompare(providedKey, config.API_SECRET_KEY_NEXT)
+      : false);
 
   if (!isValid) {
     res.status(403).json({

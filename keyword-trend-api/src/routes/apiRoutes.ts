@@ -3,6 +3,8 @@ import { keywordController } from '../controllers/keywordController';
 import { trendController } from '../controllers/trendController';
 import { categoryController } from '../controllers/categoryController';
 import { requireApiKey } from '../middleware/auth';
+import { prisma } from '../config/database';
+import { getRedisClient } from '../config/redis';
 
 export const apiRoutes = Router();
 
@@ -29,6 +31,22 @@ apiRoutes.get('/categories/:slug', (req, res) => categoryController.getBySlug(re
 apiRoutes.post('/categories', requireApiKey, (req, res) => categoryController.create(req, res));
 
 // ── Health ──
-apiRoutes.get('/health', (_req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+apiRoutes.get('/health', async (_req, res) => {
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    const redis = getRedisClient();
+    await redis.ping();
+
+    res.json({
+      status: 'ok',
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    console.error('Health check failed:', error);
+    res.status(503).json({
+      status: 'error',
+      message: 'Dependency health check failed',
+      timestamp: new Date().toISOString(),
+    });
+  }
 });

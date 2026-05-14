@@ -150,12 +150,6 @@ export default function TermsPage() {
               </a>.
             </p>
 
-            <p className="text-xs text-muted-foreground mt-8 pt-6 border-t">
-              <strong>Review note:</strong> These terms are a draft for review.
-              If paid tiers, authentication, or additional services are introduced,
-              the terms must be updated before launch.
-            </p>
-
             <div className="flex gap-4 pt-4">
               <Link href="/" className="text-sm text-primary hover:underline">
                 ← Back to Home

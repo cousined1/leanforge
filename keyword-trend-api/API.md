@@ -276,14 +276,16 @@ GET /trends/compare?keywords=ChatGPT,Claude,Gemini&geo=US
 ### 11. Get Keyword Timeline
 
 ```
-GET /trends/:keywordId/timeline?days=90
+GET /trends/:keywordId/timeline?limit=90&offset=0
 ```
 
 **Path Parameters:**
 - `keywordId` - Keyword ID (from other endpoints)
 
 **Query Parameters:**
-- `days` (number, optional, default: 90, max: 365)
+- `limit` (number, optional, default: 90, max: 365)
+- `offset` (number, optional, default: 0)
+- `days` (number, optional, max: 365) - Backward-compatible alias for `limit`
 
 **Response:**
 ```json
@@ -296,8 +298,24 @@ GET /trends/:keywordId/timeline?days=90
       "volume": 45000,
       "source": "google_trends"
     }
-  ]
+  ],
+  "_meta": {
+    "total": 240,
+    "limit": 90,
+    "offset": 0,
+    "hasMore": true
+  }
 }
+```
+
+**Example (page 2):**
+```bash
+GET /trends/:keywordId/timeline?limit=90&offset=90
+```
+
+**Backward-compatible example:**
+```bash
+GET /trends/:keywordId/timeline?days=30
 ```
 
 ### 12. List Categories

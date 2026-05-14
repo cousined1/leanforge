@@ -15,17 +15,22 @@ export function KeywordsContent() {
   const [loading, setLoading] = useState(true);
   const [limit] = useState(50);
   const [offset, setOffset] = useState(0);
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
+  const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || '');
+  const [selectedDirection, setSelectedDirection] = useState(searchParams.get('direction') || '');
 
-  const category = searchParams.get('category');
-  const direction = searchParams.get('direction');
+  useEffect(() => {
+    setOffset(0);
+  }, [searchQuery, selectedCategory, selectedDirection]);
 
   useEffect(() => {
     const fetchKeywords = async () => {
       try {
         setLoading(true);
         const result = await getKeywords({
-          category,
-          direction,
+          q: searchQuery || undefined,
+          category: selectedCategory || undefined,
+          direction: selectedDirection || undefined,
           limit,
           offset,
         });
@@ -39,7 +44,7 @@ export function KeywordsContent() {
     };
 
     fetchKeywords();
-  }, [category, direction, offset, limit]);
+  }, [searchQuery, selectedCategory, selectedDirection, offset, limit]);
 
   const totalPages = Math.ceil(total / limit);
   const currentPage = Math.floor(offset / limit) + 1;
@@ -50,8 +55,9 @@ export function KeywordsContent() {
         <div className="container">
           <h1 className="text-3xl font-bold mb-2">Keyword Trends</h1>
           <p className="text-muted-foreground">
-            {category ? `Keywords in ${category}` : 'All tracked keywords'} 
-            {direction ? ` • Showing ${direction} trends` : ''}
+            {selectedCategory ? `Keywords in ${selectedCategory}` : 'All tracked keywords'}
+            {selectedDirection ? ` • Showing ${selectedDirection} trends` : ''}
+            {searchQuery ? ` • Matching "${searchQuery}"` : ''}
           </p>
         </div>
       </section>
@@ -78,16 +84,26 @@ export function KeywordsContent() {
                   type="text"
                   placeholder="Search keywords..."
                   className="w-full pl-10 pr-4 py-2 border rounded-lg bg-background"
+                  value={searchQuery}
+                  onChange={(event) => setSearchQuery(event.target.value)}
                 />
               </div>
             </div>
-            <select className="px-4 py-2 border rounded-lg bg-background">
+            <select
+              className="px-4 py-2 border rounded-lg bg-background"
+              value={selectedDirection}
+              onChange={(event) => setSelectedDirection(event.target.value)}
+            >
               <option value="">All Directions</option>
               <option value="rising">Rising</option>
               <option value="falling">Falling</option>
               <option value="flat">Flat</option>
             </select>
-            <select className="px-4 py-2 border rounded-lg bg-background">
+            <select
+              className="px-4 py-2 border rounded-lg bg-background"
+              value={selectedCategory}
+              onChange={(event) => setSelectedCategory(event.target.value)}
+            >
               <option value="">All Categories</option>
               <option value="seo">SEO</option>
               <option value="ai">AI</option>
@@ -139,7 +155,7 @@ export function KeywordsContent() {
             </>
           ) : (
             <div className="text-center py-12">
-              <p className="text-muted-foreground">No keywords found</p>
+              <p className="text-muted-foreground">No keywords found for your filters</p>
             </div>
           )}
         </div>

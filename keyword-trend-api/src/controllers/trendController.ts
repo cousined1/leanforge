@@ -31,7 +31,10 @@ const realtimeTrendsSchema = z.object({
 });
 
 const timelineSchema = z.object({
-  days: z.string().default('90').transform((v) => Math.min(parseInt(v, 10) || 90, 365)),
+  // `days` is kept as a backward-compatible alias for `limit`.
+  days: z.coerce.number().int().min(1).max(365).optional(),
+  limit: z.coerce.number().int().min(1).max(365).default(90),
+  offset: z.coerce.number().int().min(0).default(0),
 });
 
 export const trendController = {
@@ -86,6 +89,8 @@ export const trendController = {
           create: {
             keyword: trend.keyword,
             interest: trend.interest,
+            velocity: 0,
+            direction: 'flat',
             source: 'google_trends',
             region: geo as string,
           },
@@ -144,19 +149,33 @@ export const trendController = {
         return res.status(400).json({ error: validation.error.flatten() });
       }
 
-      const { days } = validation.data;
+      const { days, limit, offset } = validation.data;
+      const effectiveLimit =
+        typeof days === 'number' && req.query.limit === undefined ? days : limit;
 
-      const trends = await prisma.trend.findMany({
-        where: { keywordId },
-        orderBy: { date: 'asc' },
-        take: days,
-      });
+      const [total, trends] = await Promise.all([
+        prisma.trend.count({ where: { keywordId } }),
+        prisma.trend.findMany({
+          where: { keywordId },
+          orderBy: { date: 'asc' },
+          take: effectiveLimit,
+          skip: offset,
+        }),
+      ]);
 
-      if (trends.length === 0) {
+      if (total === 0) {
         return res.status(404).json({ error: 'No trends found for keyword' });
       }
 
-      res.json({ data: trends });
+      res.json({
+        data: trends,
+        _meta: {
+          total,
+          limit: effectiveLimit,
+          offset,
+          hasMore: offset + trends.length < total,
+        },
+      });
     } catch (error) {
       console.error('Get timeline error:', error);
       res.status(500).json({ error: 'Failed to fetch timeline' });

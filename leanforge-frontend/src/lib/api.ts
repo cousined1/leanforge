@@ -106,10 +106,22 @@ export async function compareKeywords(keywords: string[], geo = 'US') {
   return data;
 }
 
-export async function getKeywordTimeline(keywordId: string, days = 90) {
+type TimelineParams = {
+  days?: number;
+  limit?: number;
+  offset?: number;
+};
+
+export async function getKeywordTimeline(
+  keywordId: string,
+  paramsOrDays: number | TimelineParams = 90
+) {
+  const params: TimelineParams =
+    typeof paramsOrDays === 'number' ? { days: paramsOrDays } : paramsOrDays;
+
   const { data } = await api.get<{ data: Trend[] }>(
     `/trends/${keywordId}/timeline`,
-    { params: { days } }
+    { params }
   );
   return data;
 }

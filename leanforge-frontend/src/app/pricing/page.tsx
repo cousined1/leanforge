@@ -3,73 +3,56 @@ import Link from 'next/link';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { JsonLd, breadcrumbLd } from '@/components/JsonLd';
 import { buildMetadata } from '@/lib/seo';
-import { absoluteUrl } from '@/lib/site';
+import { absoluteUrl, regentPartnerUrl } from '@/lib/site';
 import { Check } from 'lucide-react';
 
 export const metadata: Metadata = buildMetadata({
   title: 'Pricing',
-  description: 'Choose the LeanForge plan that fits your keyword intelligence needs. Free tier available with 100 API calls per day.',
+  description: 'LeanForge MVP is currently free. Browse keyword trends now and optionally upgrade your content workflow with our partner tool.',
   path: '/pricing',
 });
 
 const tiers = [
   {
-    name: 'Free',
+    name: 'LeanForge MVP',
     price: '$0',
     period: '/month',
-    description: 'Get started with basic keyword trend data.',
+    description: 'Browse keyword trends and category insights at no cost during MVP.',
     features: [
-      '100 API calls per day',
-      '7-day trend history',
-      'Basic keyword search',
-      'Community support',
+      'Keyword trend browsing',
+      'Category and direction filters',
+      'Trend timeline views',
+      'No credit card required',
     ],
-    cta: 'Get Started',
-    ctaHref: '/sign-in',
-    highlighted: false,
-  },
-  {
-    name: 'Starter',
-    price: '$29',
-    period: '/month',
-    description: 'For professionals who need deeper insights.',
-    features: [
-      '1,000 API calls per day',
-      '90-day trend history',
-      'Category filtering',
-      'Email support',
-    ],
-    cta: 'Start Free Trial',
-    ctaHref: 'https://seo-ai-regent.com/?ref=keyword-trend-api',
-    highlighted: false,
-  },
-  {
-    name: 'Growth',
-    price: '$99',
-    period: '/month',
-    description: 'For teams that need comprehensive keyword intelligence.',
-    features: [
-      '10,000 API calls per day',
-      '365-day trend history',
-      'Keyword comparison',
-      'Leaderboard access',
-      'Priority support',
-    ],
-    cta: 'Start Free Trial',
-    ctaHref: 'https://seo-ai-regent.com/?ref=keyword-trend-api',
+    cta: 'Browse Keywords',
+    ctaHref: '/keywords',
     highlighted: true,
+  },
+  {
+    name: 'Regent Partner Offer',
+    price: 'From $29',
+    period: '/month',
+    description: 'Need on-page optimization and guided content actions? Use our partner product.',
+    features: [
+      'SEO optimization score',
+      'Actionable content recommendations',
+      'Built for execution after keyword discovery',
+      'Separate account and billing',
+    ],
+    cta: 'Try SEO AI Regent',
+    ctaHref: regentPartnerUrl,
+    highlighted: false,
   },
   {
     name: 'Enterprise',
     price: 'Custom',
     period: '',
-    description: 'For organizations with advanced requirements.',
+    description: 'Planning private datasets, custom SLAs, or dedicated support?',
     features: [
-      'Unlimited API calls',
-      'Custom history retention',
-      'White-label options',
-      'SLA guarantees',
-      'Dedicated support',
+      'Custom integrations',
+      'Private data feeds',
+      'Roadmap collaboration',
+      'Commercial support',
     ],
     cta: 'Contact Us',
     ctaHref: '/contact',
@@ -89,13 +72,13 @@ export default function PricingPage() {
         <div className="container max-w-3xl text-center">
           <h1 className="text-3xl font-bold mb-4">Simple, Transparent Pricing</h1>
           <p className="text-muted-foreground">
-            Start free and scale as your keyword intelligence needs grow.
+            LeanForge is free during MVP. Paid partner options are clearly labeled.
           </p>
         </div>
       </section>
       <section className="py-12">
         <div className="container">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {tiers.map((tier) => (
               <div
                 key={tier.name}
@@ -138,7 +121,7 @@ export default function PricingPage() {
           </p>
           <div className="flex items-center justify-center gap-3">
             <Link href="/features" className="btn-outline px-4 py-2 text-sm">Compare Features</Link>
-            <Link href="/sign-in" className="btn-primary px-4 py-2 text-sm">Get Started Free</Link>
+            <Link href="/keywords" className="btn-primary px-4 py-2 text-sm">Browse Free Keywords</Link>
           </div>
         </div>
       </section>

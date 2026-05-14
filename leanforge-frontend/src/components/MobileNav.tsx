@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import { Menu, X, LogOut, User, Home } from 'lucide-react';
 import { useAuth } from '@/components/AuthProvider';
 import { routes, headerNavRoutes } from '@/lib/routes';
+import { regentPartnerUrl } from '@/lib/site';
 
 export function MobileNav() {
   const [open, setOpen] = useState(false);
@@ -69,20 +70,15 @@ export function MobileNav() {
                 </div>
               ) : (
                 <div className="px-3 space-y-2">
-                  <Link
-                    href="/sign-in"
-                    onClick={() => setOpen(false)}
-                    className="block px-3 py-2 text-sm text-muted-foreground hover:text-foreground rounded-lg hover:bg-muted/50 transition"
-                  >
-                    Sign in
-                  </Link>
-                  <Link
-                    href="https://seo-ai-regent.com/?ref=keyword-trend-api"
+                  <a
+                    href={regentPartnerUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     onClick={() => setOpen(false)}
                     className="block px-3 py-2 text-sm btn-primary text-center rounded-lg"
                   >
-                    Start Free Trial
-                  </Link>
+                    Try SEO AI Regent
+                  </a>
                 </div>
               )}
             </div>

@@ -27,16 +27,19 @@ railway variables set DATABASE_URL="postgresql://..."
 railway variables set REDIS_URL="rediss://..."
 railway variables set SERPER_API_KEY="..."
 railway variables set API_SECRET_KEY="..."
-railway variables set INSFORGE_API_KEY="ik_8dc6f90c17d1c8c89a9819cbe0191888"
-railway variables set INSFORGE_BASE_URL="https://28he5ctp.us-east.insforge.app"
+railway variables set API_SECRET_KEY_NEXT="..." # optional, for key rotation windows
+railway variables set INSFORGE_API_KEY="ik_YOUR_INSFORGE_API_KEY_HERE"
+railway variables set INSFORGE_BASE_URL="https://YOUR_PROJECT.us-east.insforge.app"
+railway variables set ENFORCE_HTTPS="true"
+railway variables set ANONYMIZE_LOG_IPS="true"
 ```
 
 **Frontend (`leanforge-frontend`):**
 ```bash
 railway variables set NEXT_PUBLIC_API_URL="https://[backend-url]/api/v1"
 railway variables set NEXT_PUBLIC_SITE_URL="https://lean-forge.net"
-railway variables set NEXT_PUBLIC_INSFORGE_URL="https://28he5ctp.us-east.insforge.app"
-railway variables set NEXT_PUBLIC_INSFORGE_ANON_KEY="ik_8dc6f90c17d1c8c89a9819cbe0191888"
+railway variables set NEXT_PUBLIC_INSFORGE_URL="https://YOUR_PROJECT.us-east.insforge.app"
+railway variables set NEXT_PUBLIC_INSFORGE_ANON_KEY="YOUR_PUBLIC_ANON_KEY_HERE"
 ```
 
 ## Deployment
@@ -74,7 +77,7 @@ railway domain add lean-forge.net
 
 ## InsForge Auth Setup
 
-1. Go to: https://28he5ctp.us-east.insforge.app/project/auth/settings
+1. Go to: `https://YOUR_PROJECT.us-east.insforge.app/project/auth/settings`
 2. Enable Google and Apple providers
 3. Set redirect URL: `https://lean-forge.net/auth/callback`
 4. Save settings

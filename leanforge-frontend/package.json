@@ -13,6 +13,9 @@
   "overrides": {
     "postcss": "8.5.14"
   },
+  "overridesNotes": {
+    "postcss": "Pinned for the Next/Tailwind toolchain used by this app; review during framework upgrades or by 2026-08-01."
+  },
   "dependencies": {
     "@insforge/sdk": "^1.0.0",
     "@tanstack/react-query": "^5.28.0",

@@ -21,8 +21,8 @@ export interface SnapshotData {
  */
 export function calculateTrendScore(snapshot: SnapshotData): number {
   // Normalize each signal to 0-100
-  const velocity7dScore = normalize(Math.abs(snapshot.velocity7d || 0), 0, 200); // 0-200% change
-  const velocity30dScore = normalize(Math.abs(snapshot.velocity30d || 0), 0, 100);
+  const velocity7dScore = normalizeSigned(snapshot.velocity7d || 0, -200, 200);
+  const velocity30dScore = normalizeSigned(snapshot.velocity30d || 0, -100, 100);
   const interestScore = normalize(snapshot.currentInterest, 0, 100);
   const volumeScore = snapshot.searchVolume
     ? normalize(Math.log10(snapshot.searchVolume + 1), 0, 6) // log scale for huge range
@@ -63,4 +63,9 @@ export function direction(
 function normalize(value: number, min: number, max: number): number {
   if (max === min) return 50;
   return ((value - min) / (max - min)) * 100;
+}
+
+function normalizeSigned(value: number, min: number, max: number): number {
+  const clamped = Math.min(max, Math.max(min, value));
+  return normalize(clamped, min, max);
 }

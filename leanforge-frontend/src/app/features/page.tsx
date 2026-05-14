@@ -93,7 +93,7 @@ export default function FeaturesPage() {
               View Pricing
               <ArrowRight className="w-4 h-4" />
             </Link>
-            <Link href="/sign-in" className="btn-outline px-4 py-2 text-sm">Get Started Free</Link>
+            <Link href="/keywords" className="btn-outline px-4 py-2 text-sm">Browse Free Keywords</Link>
             <Link href="/api-docs" className="btn-outline px-4 py-2 text-sm">Read the API Docs</Link>
           </div>
         </div>

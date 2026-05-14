@@ -113,13 +113,6 @@ export default function CookiesPage() {
               </a>.
             </p>
 
-            <p className="text-xs text-muted-foreground mt-8 pt-6 border-t">
-              <strong>Review note:</strong> This cookie policy is a draft. If
-              additional analytics, marketing, or tracking cookies are added to the
-              Service, this policy must be updated and the consent banner must be
-              reconfigured to include relevant categories.
-            </p>
-
             <div className="flex gap-4 pt-4">
               <Link href="/" className="text-sm text-primary hover:underline">
                 ← Back to Home

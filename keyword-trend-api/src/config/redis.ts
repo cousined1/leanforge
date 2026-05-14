@@ -2,38 +2,39 @@
 import Redis from 'ioredis';
 import { config } from './env';
 
-let _client: Redis | null = null;
+let redis: Redis | null = null;
 
 export function getRedisClient(): Redis {
-  if (!_client) {
-    _client = new Redis(config.REDIS_URL, {
-      maxRetriesPerRequest: 3,
+  if (!redis) {
+    const isTest = config.NODE_ENV === 'test';
+
+    redis = new Redis(config.REDIS_URL, {
+      maxRetriesPerRequest: isTest ? 1 : 3,
       retryStrategy(times) {
+        if (isTest) return null;
         return Math.min(times * 200, 5000);
       },
-      lazyConnect: false,
+      // Avoid opening long-lived sockets during unit tests.
+      lazyConnect: isTest,
     });
 
-    _client.on('error', (err) => {
+    redis.on('error', (err) => {
       console.error('Redis connection error:', err.message);
     });
 
-    _client.on('connect', () => {
+    redis.on('connect', () => {
       console.log('✅ Redis connected');
     });
   }
 
-  return _client;
+  return redis;
 }
 
 export async function closeRedisClient(): Promise<void> {
-  if (_client) {
-    try {
-      await _client.quit();
-    } catch (err) {
-      console.error('Error closing Redis client:', err);
-      _client.disconnect();
-    }
-    _client = null;
-  }
+  if (!redis) return;
+
+  await redis.quit();
+  redis = null;
 }
+
+export default getRedisClient();

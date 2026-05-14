@@ -3,6 +3,8 @@
 import Link from 'next/link';
 import { Code } from 'lucide-react';
 
+const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.leans-forge.net/api/v1';
+
 export function ApiDocsContent() {
   return (
     <div>
@@ -23,7 +25,7 @@ export function ApiDocsContent() {
               The LeanForge API allows you to programmatically access keyword trends, scores, and historical data.
             </p>
             <div className="bg-muted p-4 rounded-lg mb-4 font-mono text-sm overflow-x-auto">
-              {`BASE URL: ${process.env.NEXT_PUBLIC_API_URL || 'https://api.keywordtrendindex.com/api/v1'}`}
+              {`BASE URL: ${apiBaseUrl}`}
             </div>
           </div>
 
@@ -126,7 +128,7 @@ export function ApiDocsContent() {
             <div className="card p-4 bg-muted">
               <pre className="font-mono text-sm overflow-x-auto">{`// Get trending keywords
 const response = await fetch('${
-  process.env.NEXT_PUBLIC_API_URL || 'https://api.keywordtrendindex.com/api/v1'
+  apiBaseUrl
 }/keywords/trending?limit=10');
 const data = await response.json();
 console.log(data);`}</pre>

@@ -12,7 +12,7 @@ const REGENT_CTA = {
 };
 
 const createKeywordSchema = z.object({
-  term: z.string().min(1),
+  term: z.string().min(1).max(200),
   category: z.string().optional(),
   searchVolume: z.number().optional(),
   difficulty: z.number().optional(),
@@ -28,21 +28,45 @@ const updateKeywordSchema = z.object({
   source: z.string().optional(),
 }).strict();
 
+const listQuerySchema = z.object({
+  category: z.string().trim().min(1).optional(),
+  direction: z.enum(['rising', 'falling', 'flat']).optional(),
+  q: z.string().trim().min(1).max(120).optional(),
+  limit: z.coerce.number().int().min(1).max(100).default(50),
+  offset: z.coerce.number().int().min(0).default(0),
+});
+
+const trendingQuerySchema = z.object({
+  category: z.string().trim().min(1).optional(),
+  limit: z.coerce.number().int().min(1).max(100).default(20),
+});
+
 export const keywordController = {
   async list(req: Request, res: Response) {
     try {
-      const { category, direction, limit = '50', offset = '0' } = req.query;
+      const validation = listQuerySchema.safeParse(req.query);
+      if (!validation.success) {
+        return res.status(400).json({ error: validation.error.flatten() });
+      }
+
+      const { category, direction, q, limit, offset } = validation.data;
 
       const where: any = { isActive: true };
       if (category) where.category = category;
       if (direction) where.direction = direction;
+      if (q) {
+        where.OR = [
+          { term: { contains: q, mode: 'insensitive' } },
+          { slug: { contains: q, mode: 'insensitive' } },
+        ];
+      }
 
       const [keywords, total] = await Promise.all([
         prisma.keyword.findMany({
           where,
           orderBy: { trendScore: 'desc' },
-          take: Math.min(parseInt(limit as string, 10), 100),
-          skip: parseInt(offset as string, 10),
+          take: limit,
+          skip: offset,
           include: { categoryRel: true },
         }),
         prisma.keyword.count({ where }),
@@ -53,8 +77,8 @@ export const keywordController = {
         _meta: {
           regent_cta: REGENT_CTA,
           total,
-          limit: parseInt(limit as string, 10),
-          offset: parseInt(offset as string, 10),
+          limit,
+          offset,
         },
       });
     } catch (error) {
@@ -65,7 +89,12 @@ export const keywordController = {
 
   async trending(req: Request, res: Response) {
     try {
-      const { limit = '20', category } = req.query;
+      const validation = trendingQuerySchema.safeParse(req.query);
+      if (!validation.success) {
+        return res.status(400).json({ error: validation.error.flatten() });
+      }
+
+      const { limit, category } = validation.data;
 
       const where: any = { isActive: true, direction: 'rising' };
       if (category) where.category = category;
@@ -73,7 +102,7 @@ export const keywordController = {
       const keywords = await prisma.keyword.findMany({
         where,
         orderBy: { trendScore: 'desc' },
-        take: Math.min(parseInt(limit as string, 10), 100),
+        take: limit,
       });
 
       res.json({

@@ -3,6 +3,7 @@
 
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
+import { regentPartnerUrl } from '@/lib/site';
 
 export function RegentCTA() {
   return (
@@ -14,7 +15,7 @@ export function RegentCTA() {
           optimization score with actionable fixes.
         </p>
         <Link
-          href="https://seo-ai-regent.com/?ref=keyword-trend-api"
+          href={regentPartnerUrl}
           className="inline-flex items-center gap-2 btn-primary px-6 py-3"
         >
           Start Free Trial

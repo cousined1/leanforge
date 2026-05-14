@@ -9,7 +9,7 @@ const nextConfig = {
       "frame-ancestors 'none'",
       "object-src 'none'",
       "form-action 'self'",
-      "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com",
+      "script-src 'self' 'unsafe-inline' 'strict-dynamic' https://www.googletagmanager.com https://www.google-analytics.com",
       "connect-src 'self' https://www.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com https://*.insforge.app",
       "img-src 'self' data: https:",
       "style-src 'self' 'unsafe-inline'",

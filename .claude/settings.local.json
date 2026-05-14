@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Get-ChildItem -Path \"e:\\\\LeanForge Keyword Trend Index\" -Force)",
+      "Bash(Select-Object -Property Name, PSIsContainer)",
+      "Bash(Format-Table -AutoSize)",
+      "PowerShell(tree /e:\\\\LeanForge\\\\ Keyword\\\\ Trend\\\\ Index /L /A 2>&1)",
+      "PowerShell(head -200)"
+    ]
+  }
+}
