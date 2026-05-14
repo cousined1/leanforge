@@ -4,6 +4,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
 import { config } from './config/env';
+import { getRedisClient } from './config/redis';
 import { apiRoutes } from './routes/apiRoutes';
 import { errorHandler } from './middleware/errorHandler';
 import { rateLimiter } from './middleware/rateLimiter';
@@ -43,9 +44,32 @@ app.use(rateLimiter);
 // Request logging
 app.use(requestLogger);
 
-// Health check early return
-app.get('/health', (_req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+// Health check with DB + Redis verification
+app.get('/health', async (_req, res) => {
+  try {
+    const [dbOk, redisOk] = await Promise.all([
+      prisma.$queryRaw`SELECT 1`.
+        then(() => true).catch(() => false),
+      getRedisClient().ping().then(() => true).catch(() => false),
+    ]);
+
+    const status = dbOk && redisOk ? 'ok' : 'degraded';
+    const statusCode = status === 'ok' ? 200 : 503;
+
+    res.status(statusCode).json({
+      status,
+      database: dbOk ? 'up' : 'down',
+      redis: redisOk ? 'up' : 'down',
+      timestamp: new Date().toISOString(),
+    });
+  } catch {
+    res.status(503).json({
+      status: 'error',
+      database: 'unknown',
+      redis: 'unknown',
+      timestamp: new Date().toISOString(),
+    });
+  }
 });
 
 // API routes
@@ -78,6 +102,8 @@ process.on('SIGTERM', async () => {
   console.log('SIGTERM received, shutting down gracefully...');
   server.close(async () => {
     await prisma.$disconnect();
+    const { closeRedisClient } = await import('./config/redis');
+    await closeRedisClient();
     process.exit(0);
   });
 });
@@ -86,6 +112,8 @@ process.on('SIGINT', async () => {
   console.log('SIGINT received, shutting down gracefully...');
   server.close(async () => {
     await prisma.$disconnect();
+    const { closeRedisClient } = await import('./config/redis');
+    await closeRedisClient();
     process.exit(0);
   });
 });

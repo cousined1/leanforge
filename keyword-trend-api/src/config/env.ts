@@ -37,4 +37,13 @@ export function validateEnv(): Environment {
   return result.data;
 }
 
+// Validate required vars with clear error messages before Zod parse
+const requiredKeys = ['DATABASE_URL', 'REDIS_URL', 'SERPER_API_KEY'] as const;
+for (const key of requiredKeys) {
+  if (!process.env[key]) {
+    console.error(`❌ Missing required environment variable: ${key}`);
+    process.exit(1);
+  }
+}
+
 export const config = validateEnv();

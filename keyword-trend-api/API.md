@@ -91,10 +91,12 @@ GET /keywords/trending?limit=20&category=ai
 
 **Query Parameters:**
 - `limit` (number, optional, default: 20, max: 100)
-- `category` (string, optional) - Filter by category
+- `category` (string, optional) - Filter by category slug
+
+**Default behavior:** Returns top 20 rising keywords across all categories.
 
 **Response:**
-Same as list endpoint, filtered to `direction: "rising"` only.
+Same format as List Keywords, filtered to `direction: "rising"` only.
 
 ### 3. Get Keyword by Slug
 
@@ -411,23 +413,43 @@ HTTP 429 Too Many Requests
 
 ## Pagination
 
-For endpoints that return arrays, use `limit` and `offset`:
+All list endpoints use cursor-free offset pagination via `limit` and `offset` query parameters.
 
-```
-GET /keywords?limit=50&offset=100
-```
-
-Response includes:
+### Standard Pagination Response
+Every paginated response includes `_meta` with a consistent format:
 ```json
 {
-  "data": [...],
   "_meta": {
-    "total": 500,
+    "total": 150,
     "limit": 50,
-    "offset": 100
+    "offset": 0
   }
 }
 ```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `total` | number | Total number of records matching the query |
+| `limit` | number | Requested page size (max 100) |
+| `offset` | number | Number of records skipped |
+
+### Request Parameters
+
+| Parameter | Default | Max | Description |
+|-----------|---------|-----|-------------|
+| `limit` | 50 | 100 | Number of results per page |
+| `offset` | 0 | — | Number of records to skip |
+
+### Parameter Interactions
+- `limit` + `offset`: Used together for pagination. `offset` is applied before `limit`.
+- `category` + `direction`: Filters are AND-combined. A keyword must match both to appear.
+- `category` + `limit`: Category filtering is applied first, then pagination.
+
+### Example
+```
+GET /api/v1/keywords?limit=50&offset=100
+```
+Returns keywords 101-150 (page 3 at 50 per page).
 
 ## Trend Scoring
 
