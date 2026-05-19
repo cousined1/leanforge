@@ -1,0 +1,7 @@
+# Security Policy for lean-forge.net
+# https://securitytxt.org/ — RFC 9116
+
+Contact: mailto:hello@developer312.com
+Preferred-Languages: en
+Canonical: https://lean-forge.net/.well-known/security.txt
+Expires: 2027-05-17T00:00:00.000Z

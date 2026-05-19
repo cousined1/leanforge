@@ -1,0 +1,5 @@
+[auth]
+allowedRedirectUrls = [
+  "http://localhost:3000/auth/callback",
+  "https://lean-forge.net/auth/callback"
+]

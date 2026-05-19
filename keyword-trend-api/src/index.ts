@@ -73,7 +73,6 @@ app.get('/health', async (_req, res) => {
     console.error('Health check failed:', error);
     res.status(503).json({
       status: 'error',
-      message: 'Dependency health check failed',
       timestamp: new Date().toISOString(),
     });
   }
@@ -95,6 +94,10 @@ const PORT = config.PORT;
 const server = app.listen(PORT, async () => {
   console.log(`LeanForge Keyword Trend API running on port ${PORT}`);
   console.log(`Environment: ${config.NODE_ENV}`);
+
+  if (config.NODE_ENV === 'production' && !config.ENFORCE_HTTPS) {
+    console.warn('[SECURITY] ENFORCE_HTTPS is false in production — ensure HTTPS is enforced at the load balancer.');
+  }
 
   // Start cron jobs in production only
   if (config.NODE_ENV === 'production') {

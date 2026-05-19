@@ -51,7 +51,6 @@ export const sitemapPublicRoutes: Array<{
   { path: '/api-docs', label: 'API Documentation', changefreq: 'weekly', priority: 0.7 },
   { path: '/help-center', label: 'Help Center', changefreq: 'monthly', priority: 0.6 },
   { path: '/faq', label: 'FAQ', changefreq: 'monthly', priority: 0.6 },
-  { path: '/sign-in', label: 'Sign In', changefreq: 'monthly', priority: 0.4 },
 ];
 
 export const sitemapLegalRoutes: Array<{
