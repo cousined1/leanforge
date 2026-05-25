@@ -61,6 +61,23 @@ app.use(requestLogger);
 // Health check early return
 app.get('/health', async (_req, res) => {
   try {
+    // Quick response without DB/Redis checks for Railway healthcheck
+    res.json({
+      status: 'ok',
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    console.error('Health check failed:', error);
+    res.status(503).json({
+      status: 'error',
+      timestamp: new Date().toISOString(),
+    });
+  }
+});
+
+// Deep health check for monitoring
+app.get('/health/deep', async (_req, res) => {
+  try {
     await prisma.$queryRaw`SELECT 1`;
     const redis = getRedisClient();
     await redis.ping();
@@ -70,7 +87,7 @@ app.get('/health', async (_req, res) => {
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
-    console.error('Health check failed:', error);
+    console.error('Deep health check failed:', error);
     res.status(503).json({
       status: 'error',
       timestamp: new Date().toISOString(),
