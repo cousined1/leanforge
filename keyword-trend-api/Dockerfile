@@ -1,10 +1,11 @@
 # Multi-stage Dockerfile for production build
+# Note: This is run from repo root, so we need to cd into keyword-trend-api
 
 FROM node:20-alpine AS builder
 WORKDIR /app
-COPY package*.json ./
+COPY keyword-trend-api/package*.json ./
 RUN npm ci
-COPY . .
+COPY keyword-trend-api/. .
 RUN npx prisma generate
 RUN npm run build
 

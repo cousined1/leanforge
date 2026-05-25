@@ -2,7 +2,8 @@
   "$schema": "https://railway.com/railway.schema.json",
   "build": {
     "builder": "DOCKERFILE",
-    "dockerfilePath": "keyword-trend-api/Dockerfile"
+    "dockerfilePath": "keyword-trend-api/Dockerfile",
+    "watchPatterns": ["keyword-trend-api/**"]
   },
   "deploy": {
     "startCommand": "node dist/index.js",
