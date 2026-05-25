@@ -1,9 +1,8 @@
 // src/services/cacheService.ts
-import Redis from 'ioredis';
-import { getRedisClient } from '../config/redis';
+import { getRedisClient, RedisClient } from '../config/redis';
 
 export class CacheService {
-  private client: Redis;
+  private client: RedisClient;
 
   constructor() {
     this.client = getRedisClient();

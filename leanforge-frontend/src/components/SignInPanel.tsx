@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import { useAuth } from '@/components/AuthProvider';
 import { SocialAuthProvider, isInsForgeConfigured, supportedSocialProviders } from '@/lib/insforge';
+import { analyticsEvents } from '@/lib/analytics';
 
 function providerIcon(provider: SocialAuthProvider) {
   if (provider === 'google') return 'G';
@@ -31,6 +32,7 @@ export function SignInPanel() {
 
   const handleProviderClick = async (provider: SocialAuthProvider) => {
     setPendingProvider(provider);
+    analyticsEvents.signupStarted({ provider, source: 'sign_in_page' });
     try {
       await signInWithProvider(provider);
     } finally {

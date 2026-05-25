@@ -1,10 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { getKeywords, Keyword } from '@/lib/api';
 import { KeywordGrid } from '@/components/KeywordGrid';
 import { RegentCTA } from '@/components/RegentCTA';
+import { analyticsEvents, trackEvent } from '@/lib/analytics';
 import Link from 'next/link';
 import { Search } from 'lucide-react';
 
@@ -18,6 +19,14 @@ export function KeywordsContent() {
   const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
   const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || '');
   const [selectedDirection, setSelectedDirection] = useState(searchParams.get('direction') || '');
+  const hasTracked = useRef(false);
+
+  useEffect(() => {
+    if (!hasTracked.current && !loading && keywords.length > 0) {
+      hasTracked.current = true;
+      trackEvent('keyword_browsed', { count: keywords.length });
+    }
+  }, [loading, keywords]);
 
   useEffect(() => {
     setOffset(0);
@@ -154,8 +163,31 @@ export function KeywordsContent() {
               )}
             </>
           ) : (
-            <div className="text-center py-12">
-              <p className="text-muted-foreground">No keywords found for your filters</p>
+            <div className="text-center py-16 max-w-md mx-auto">
+              <div className="text-4xl mb-4">🔍</div>
+              <h3 className="text-lg font-semibold mb-2">No keywords match your filters</h3>
+              <p className="text-sm text-muted-foreground mb-6">
+                {searchQuery
+                  ? `We couldn't find any keywords matching "${searchQuery}". Try a broader search term or browse by category.`
+                  : selectedCategory
+                  ? `No keywords found in the "${selectedCategory}" category with the current filters. Try removing some filters.`
+                  : 'No keywords match the selected direction filter. Try expanding your search.'}
+              </p>
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+                <button
+                  onClick={() => {
+                    setSearchQuery('');
+                    setSelectedCategory('');
+                    setSelectedDirection('');
+                  }}
+                  className="btn-primary px-4 py-2 text-sm"
+                >
+                  Clear all filters
+                </button>
+                <Link href="/categories" className="btn-outline px-4 py-2 text-sm">
+                  Browse by category
+                </Link>
+              </div>
             </div>
           )}
         </div>

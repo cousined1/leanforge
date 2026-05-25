@@ -62,18 +62,10 @@ export async function rateLimiter(
 
   try {
     const windowSeconds = Math.ceil(config.RATE_LIMIT_WINDOW_MS / 1000);
-    const current = (await redis.eval(
-      `
-        local current = redis.call("INCR", KEYS[1])
-        if current == 1 then
-          redis.call("EXPIRE", KEYS[1], ARGV[1])
-        end
-        return current
-      `,
-      1,
-      key,
-      windowSeconds
-    )) as number;
+    const current = await redis.incr(key);
+    if (current === 1) {
+      await redis.expire(key, windowSeconds);
+    }
 
     res.setHeader('X-RateLimit-Limit', config.RATE_LIMIT_MAX);
     res.setHeader('X-RateLimit-Remaining', Math.max(0, config.RATE_LIMIT_MAX - current));

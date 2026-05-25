@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
 import { useAuth } from '@/components/AuthProvider';
+import { analyticsEvents } from '@/lib/analytics';
 
 export function AuthCallbackClient() {
   const router = useRouter();
@@ -22,6 +23,7 @@ export function AuthCallbackClient() {
 
   useEffect(() => {
     if (!loading && user) {
+      analyticsEvents.signupCompleted({ method: 'social' });
       router.replace('/keywords');
     }
   }, [loading, router, user]);

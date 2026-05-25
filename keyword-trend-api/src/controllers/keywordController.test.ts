@@ -44,6 +44,8 @@ async function getControllerAndPrisma(): Promise<{
     process.env.API_SECRET_KEY || 'test-api-secret-key-with-at-least-32-chars';
   process.env.API_SECRET_KEY_NEXT =
     process.env.API_SECRET_KEY_NEXT || 'next-api-secret-key-with-at-least-32-chars';
+  process.env.REGENT_PARTNER_URL =
+    process.env.REGENT_PARTNER_URL || 'https://partner.example.test/?ref=leanforge';
 
   const [{ keywordController }, { prisma }] = await Promise.all([
     import('./keywordController'),
@@ -100,5 +102,30 @@ test('create rejects overlong keyword terms', async () => {
     assert.ok((res.body as any).error);
   } finally {
     (prisma.keyword as any).create = originalCreate;
+  }
+});
+
+test('list returns the configured Regent CTA URL', async () => {
+  const { keywordController, prisma } = await getControllerAndPrisma();
+  const originalFindMany = prisma.keyword.findMany;
+  const originalCount = prisma.keyword.count;
+
+  (prisma.keyword as any).findMany = async () => [];
+  (prisma.keyword as any).count = async () => 0;
+
+  try {
+    const req = { query: {} } as unknown as Request;
+    const res = createMockResponse();
+
+    await keywordController.list(req, res);
+
+    assert.equal(res.statusCode, 200);
+    assert.equal(
+      (res.body as any)._meta.regent_cta.url,
+      'https://partner.example.test/?ref=leanforge'
+    );
+  } finally {
+    (prisma.keyword as any).findMany = originalFindMany;
+    (prisma.keyword as any).count = originalCount;
   }
 });

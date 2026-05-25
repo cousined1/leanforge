@@ -2,13 +2,14 @@
 import { Request, Response } from 'express';
 import { prisma } from '../config/database';
 import { z } from 'zod';
+import { config } from '../config/env';
 
 const REGENT_CTA = {
   headline: 'Ready to rank for this keyword?',
   description:
     'SEO AI Regent analyzes your content against trending keywords and gives you a 0-100 optimization score with actionable fixes.',
   cta: 'Start Free Trial',
-  url: 'https://seo-ai-regent.com/?ref=keyword-trend-api',
+  url: config.REGENT_PARTNER_URL,
 };
 
 const createKeywordSchema = z.object({

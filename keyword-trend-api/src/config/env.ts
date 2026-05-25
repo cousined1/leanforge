@@ -5,12 +5,18 @@ const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   PORT: z.string().default('3001').transform(Number),
   DATABASE_URL: z.string().url(),
-  REDIS_URL: z.string().url(),
+  REDIS_URL: z.string().url().optional(),
+  UPSTASH_REDIS_REST_URL: z.string().url().optional(),
+  UPSTASH_REDIS_REST_TOKEN: z.string().optional(),
   SERPER_API_KEY: z.string(),
   API_SECRET_KEY: z.string().min(32),
   API_SECRET_KEY_NEXT: z.string().min(32).optional(),
   SENTRY_DSN: z.string().url().optional(),
   SENTRY_ENVIRONMENT: z.string().optional(),
+  REGENT_PARTNER_URL: z
+    .string()
+    .url()
+    .default('https://seo-ai-regent.com/?ref=keyword-trend-api'),
   FRONTEND_URL: z.string().url().default('https://lean-forge.net'),
   CORS_ORIGINS: z
     .string()
@@ -58,12 +64,24 @@ export function validateEnv(): Environment {
 }
 
 // Validate required vars with clear error messages before Zod parse
-const requiredKeys = ['DATABASE_URL', 'REDIS_URL', 'SERPER_API_KEY'] as const;
+const requiredKeys = ['DATABASE_URL', 'SERPER_API_KEY'] as const;
 for (const key of requiredKeys) {
   if (!process.env[key]) {
     console.error(`❌ Missing required environment variable: ${key}`);
     process.exit(1);
   }
+}
+
+const hasRedisUrl = Boolean(process.env.REDIS_URL);
+const hasUpstashRest =
+  Boolean(process.env.UPSTASH_REDIS_REST_URL) &&
+  Boolean(process.env.UPSTASH_REDIS_REST_TOKEN);
+
+if (!hasRedisUrl && !hasUpstashRest) {
+  console.error(
+    '❌ Missing Redis configuration: set REDIS_URL or both UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN'
+  );
+  process.exit(1);
 }
 
 export const config = validateEnv();
