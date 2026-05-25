@@ -1,18 +1,11 @@
 {
   "$schema": "https://railway.com/railway.schema.json",
   "build": {
-    "builder": "NIXPACKS",
-    "buildCommand": "cd keyword-trend-api && npm install && npm run build",
-    "nixpacksPlan": {
-      "phases": {
-        "build": {
-          "cmds": ["cd keyword-trend-api && npm install && npm run build"]
-        }
-      }
-    }
+    "builder": "DOCKERFILE",
+    "dockerfilePath": "keyword-trend-api/Dockerfile"
   },
   "deploy": {
-    "startCommand": "cd keyword-trend-api && npm start",
+    "startCommand": "node dist/index.js",
     "healthcheckPath": "/health",
     "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 10
