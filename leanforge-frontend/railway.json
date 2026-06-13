@@ -2,15 +2,8 @@
   "$schema": "https://railway.com/railway.schema.json",
   "name": "leanforge-frontend",
   "build": {
-    "builder": "NIXPACKS",
-    "buildCommand": "npm install && npm run build",
-    "nixpacksPlan": {
-      "phases": {
-        "build": {
-          "cmds": ["npm install", "npm run build"]
-        }
-      }
-    }
+    "builder": "RAILPACK",
+    "buildCommand": "npm install && npm run build"
   },
   "deploy": {
     "startCommand": "npm start",
