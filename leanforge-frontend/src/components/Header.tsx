@@ -75,15 +75,7 @@ export function Header() {
                 <span className="hidden sm:inline">Sign out</span>
               </button>
             </div>
-          ) : (
-            <Link
-              href={routes.signIn.path}
-              className="btn-outline px-3 py-2 text-sm hidden sm:inline-flex focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-              aria-current={isActive(pathname, routes.signIn.path) ? 'page' : undefined}
-            >
-              Sign in
-            </Link>
-          )}
+          ) : null}
           <a
             href={regentPartnerUrl}
             target="_blank"
@@ -92,13 +84,15 @@ export function Header() {
           >
             Try SEO AI Regent
           </a>
-          <Link
-            href={routes.signIn.path}
+          <a
+            href={regentPartnerUrl}
+            target="_blank"
+            rel="noopener noreferrer"
             className="md:hidden p-2 hover:bg-muted rounded-lg transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-            aria-label="Sign in"
+            aria-label="Try SEO AI Regent"
           >
-            <User className="w-5 h-5" />
-          </Link>
+            <Search className="w-5 h-5" />
+          </a>
         </div>
       </div>
     </header>

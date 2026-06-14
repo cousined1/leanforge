@@ -90,14 +90,6 @@ export function MobileNav() {
                 </div>
               ) : (
                 <div className="px-3 space-y-2">
-                  <Link
-                    href={routes.signIn.path}
-                    onClick={() => setOpen(false)}
-                    className="flex items-center gap-2 px-3 py-2 text-sm btn-outline text-center rounded-lg justify-center"
-                  >
-                    <User className="w-4 h-4" aria-hidden="true" />
-                    Sign in
-                  </Link>
                   <a
                     href={regentPartnerUrl}
                     target="_blank"
