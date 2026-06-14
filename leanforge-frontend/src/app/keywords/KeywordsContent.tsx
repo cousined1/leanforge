@@ -29,10 +29,6 @@ export function KeywordsContent() {
   }, [loading, keywords]);
 
   useEffect(() => {
-    setOffset(0);
-  }, [searchQuery, selectedCategory, selectedDirection]);
-
-  useEffect(() => {
     const fetchKeywords = async () => {
       try {
         setLoading(true);
@@ -94,14 +90,20 @@ export function KeywordsContent() {
                   placeholder="Search keywords..."
                   className="w-full pl-10 pr-4 py-2 border rounded-lg bg-background"
                   value={searchQuery}
-                  onChange={(event) => setSearchQuery(event.target.value)}
+                  onChange={(event) => {
+                    setSearchQuery(event.target.value);
+                    setOffset(0);
+                  }}
                 />
               </div>
             </div>
             <select
               className="px-4 py-2 border rounded-lg bg-background"
               value={selectedDirection}
-              onChange={(event) => setSelectedDirection(event.target.value)}
+              onChange={(event) => {
+                setSelectedDirection(event.target.value);
+                setOffset(0);
+              }}
             >
               <option value="">All Directions</option>
               <option value="rising">Rising</option>
@@ -111,7 +113,10 @@ export function KeywordsContent() {
             <select
               className="px-4 py-2 border rounded-lg bg-background"
               value={selectedCategory}
-              onChange={(event) => setSelectedCategory(event.target.value)}
+              onChange={(event) => {
+                setSelectedCategory(event.target.value);
+                setOffset(0);
+              }}
             >
               <option value="">All Categories</option>
               <option value="seo">SEO</option>
@@ -179,6 +184,7 @@ export function KeywordsContent() {
                     setSearchQuery('');
                     setSelectedCategory('');
                     setSelectedDirection('');
+                    setOffset(0);
                   }}
                   className="btn-primary px-4 py-2 text-sm"
                 >
