@@ -1,4 +1,5 @@
 // src/index.ts
+import path from 'path';
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -101,6 +102,17 @@ app.get('/health/deep', async (_req, res) => {
 
 // API routes
 app.use('/api/v1', apiRoutes);
+
+// In production, serve the built frontend SPA
+if (config.NODE_ENV === 'production') {
+  const frontendDist = path.resolve(__dirname, '..', 'frontend', 'dist');
+  app.use(express.static(frontendDist));
+
+  // SPA fallback: non-API routes serve index.html so React Router handles them
+  app.get(/^\/(?!api\/|health).*/, (_req, res) => {
+    res.sendFile(path.join(frontendDist, 'index.html'));
+  });
+}
 
 // Global error handler
 app.use(errorHandler);
