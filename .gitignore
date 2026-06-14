@@ -26,5 +26,10 @@ pnpm-debug.log*
 # typescript
 *.tsbuildinfo
 
+# secrets — never commit credential files
+apikey*.txt
+*apikey*
+*-credentials*
+
 # agent tooling
 .refact/

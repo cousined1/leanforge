@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { Code } from 'lucide-react';
 
-const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.leans-forge.net/api/v1';
+const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.lean-forge.net/api/v1';
 
 export function ApiDocsContent() {
   return (
