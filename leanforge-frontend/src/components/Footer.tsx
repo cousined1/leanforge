@@ -5,11 +5,20 @@ const currentYear = new Date().getFullYear();
 
 export function Footer() {
   return (
-    <footer className="border-t bg-muted/20 py-12">
+    <footer className="border-t bg-muted/20 py-12" aria-labelledby="footer-heading">
+      <h2 id="footer-heading" className="sr-only">
+        Site footer
+      </h2>
       <div className="container">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 mb-8">
           <div>
-            <h4 className="font-semibold mb-4">LeanForge</h4>
+            <Link
+              href="/"
+              className="font-semibold mb-3 inline-block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded"
+              aria-label="LeanForge home"
+            >
+              LeanForge
+            </Link>
             <p className="text-sm text-muted-foreground">
               Keyword intelligence platform for SEO professionals.
             </p>
@@ -18,13 +27,16 @@ export function Footer() {
             </p>
           </div>
           <div>
-            <h4 className="font-semibold mb-4">Product</h4>
+            <h3 className="font-semibold mb-4 text-sm uppercase tracking-wide text-muted-foreground">Product</h3>
             <ul className="space-y-2 text-sm" aria-label="Product links">
               {footerProductRoutes.map((key) => {
                 const route = routes[key];
                 return (
                   <li key={key}>
-                    <Link href={route.path} className="text-muted-foreground hover:text-foreground transition-colors">
+                    <Link
+                      href={route.path}
+                      className="text-foreground/80 hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded"
+                    >
                       {route.shortLabel || route.label}
                     </Link>
                   </li>
@@ -33,46 +45,77 @@ export function Footer() {
             </ul>
           </div>
           <div>
-            <h4 className="font-semibold mb-4">Company</h4>
+            <h3 className="font-semibold mb-4 text-sm uppercase tracking-wide text-muted-foreground">Company</h3>
             <ul className="space-y-2 text-sm" aria-label="Company links">
               {footerCompanyRoutes.map((key) => {
                 const route = routes[key];
                 return (
                   <li key={key}>
-                    <Link href={route.path} className="text-muted-foreground hover:text-foreground transition-colors">
+                    <Link
+                      href={route.path}
+                      className="text-foreground/80 hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded"
+                    >
                       {route.label}
                     </Link>
                   </li>
                 );
               })}
-              <li>
-                <a
-                  href="mailto:hello@developer312.com"
-                  className="text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  hello@developer312.com
-                </a>
-              </li>
             </ul>
-          </div>
-          <div>
-            <h4 className="font-semibold mb-4">Resources</h4>
+            <h3 className="font-semibold mt-6 mb-4 text-sm uppercase tracking-wide text-muted-foreground">Resources</h3>
             <ul className="space-y-2 text-sm" aria-label="Resource links">
               {footerResourceRoutes.map((key) => {
                 const route = routes[key];
                 return (
                   <li key={key}>
-                    <Link href={route.path} className="text-muted-foreground hover:text-foreground transition-colors">
-                      {route.shortLabel || route.label}
+                    <Link
+                      href={route.path}
+                      className="text-foreground/80 hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded"
+                    >
+                      {route.label}
                     </Link>
                   </li>
                 );
               })}
+            </ul>
+          </div>
+          <div>
+            <h3 className="font-semibold mb-4 text-sm uppercase tracking-wide text-muted-foreground">Get in touch</h3>
+            <ul className="space-y-2 text-sm" aria-label="Contact links">
+              <li>
+                <a
+                  href="mailto:hello@developer312.com"
+                  className="text-foreground/80 hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded"
+                >
+                  hello@developer312.com
+                </a>
+              </li>
+              <li>
+                <Link
+                  href={routes.contact.path}
+                  className="text-foreground/80 hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded"
+                >
+                  Contact form
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href={routes.helpCenter.path}
+                  className="text-foreground/80 hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded"
+                >
+                  Help Center
+                </Link>
+              </li>
+            </ul>
+            <h3 className="font-semibold mt-6 mb-4 text-sm uppercase tracking-wide text-muted-foreground">Legal</h3>
+            <ul className="space-y-2 text-sm" aria-label="Legal links">
               {footerLegalRoutes.map((key) => {
                 const route = routes[key];
                 return (
                   <li key={key}>
-                    <Link href={route.path} className="text-muted-foreground hover:text-foreground transition-colors">
+                    <Link
+                      href={route.path}
+                      className="text-foreground/80 hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded"
+                    >
                       {route.label}
                     </Link>
                   </li>

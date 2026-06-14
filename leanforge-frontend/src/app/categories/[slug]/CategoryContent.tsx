@@ -4,8 +4,9 @@ import { useEffect, useState } from 'react';
 import { getCategoryBySlug, Category, Keyword } from '@/lib/api';
 import { KeywordGrid } from '@/components/KeywordGrid';
 import { RegentCTA } from '@/components/RegentCTA';
+import { RelatedLinks } from '@/components/RelatedLinks';
 import Link from 'next/link';
-import { Loader } from 'lucide-react';
+import { Loader, Search, TrendingUp, Code2 } from 'lucide-react';
 
 interface CategoryContentProps {
   slug: string;
@@ -44,6 +45,13 @@ export function CategoryContent({ slug }: CategoryContentProps) {
       <div className="container py-12">
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-2">Category not found</h1>
+          <p className="text-muted-foreground mb-6">
+            The category you&apos;re looking for doesn&apos;t exist.
+          </p>
+          <div className="flex items-center justify-center gap-3 text-sm">
+            <Link href="/categories" className="btn-primary px-4 py-2">All categories</Link>
+            <Link href="/keywords" className="btn-outline px-4 py-2">Browse keywords</Link>
+          </div>
         </div>
       </div>
     );
@@ -60,21 +68,63 @@ export function CategoryContent({ slug }: CategoryContentProps) {
 
       <section className="py-12 border-b">
         <div className="container">
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
             <div>
-              <h2 className="text-2xl font-bold mb-2">Trending Keywords</h2>
-            <p className="text-muted-foreground">
-              {category.keywords.length} keywords in this category
-            </p>
+              <h2 className="text-2xl font-bold mb-1">Trending Keywords</h2>
+              <p className="text-muted-foreground">
+                {category.keywords.length} keywords in this category
+              </p>
             </div>
-            <div className="flex gap-4 text-sm">
-              <Link href="/categories" className="text-primary hover:underline">← All categories</Link>
-              <Link href="/pricing" className="text-primary hover:underline">View pricing for API access →</Link>
+            <div className="flex flex-wrap gap-4 text-sm">
+              <Link
+                href="/categories"
+                className="text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded"
+              >
+                ← All categories
+              </Link>
+              <Link
+                href="/keywords?direction=rising"
+                className="text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded"
+              >
+                Rising keywords →
+              </Link>
+              <Link
+                href="/pricing"
+                className="text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded"
+              >
+                API pricing
+              </Link>
             </div>
           </div>
           <KeywordGrid keywords={category.keywords} />
         </div>
       </section>
+
+      <RelatedLinks
+        title="Take it further"
+        description="Compare the API, dig into the data, or try the rising-only filter."
+        columns={3}
+        links={[
+          {
+            href: '/keywords?direction=rising',
+            label: 'All rising keywords',
+            description: 'Keywords trending up across every category.',
+            icon: TrendingUp,
+          },
+          {
+            href: '/keywords',
+            label: 'Browse all keywords',
+            description: 'Filter by direction, category, and free-text search.',
+            icon: Search,
+          },
+          {
+            href: '/api-docs',
+            label: 'API documentation',
+            description: 'Pull this category programmatically.',
+            icon: Code2,
+          },
+        ]}
+      />
 
       <section className="py-16">
         <div className="container max-w-4xl">

@@ -1,10 +1,11 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
+import Link from 'next/link';
 import { JsonLd, breadcrumbLd } from '@/components/JsonLd';
-import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { SignInPanel } from '@/components/SignInPanel';
 import { buildMetadata } from '@/lib/seo';
 import { absoluteUrl } from '@/lib/site';
+import { routes, preAuthExploreRoutes } from '@/lib/routes';
 
 export const metadata: Metadata = buildMetadata({
   title: 'Sign In',
@@ -15,7 +16,7 @@ export const metadata: Metadata = buildMetadata({
 export default function SignInPage() {
   return (
     <div>
-      <Breadcrumbs items={[{ label: 'Sign In' }]} />
+      {/* Per design rule, no breadcrumb on auth pages. */}
       <JsonLd
         data={breadcrumbLd([
           { name: 'Home', url: absoluteUrl('/') },
@@ -37,6 +38,35 @@ export default function SignInPage() {
           >
             <SignInPanel />
           </Suspense>
+
+          <nav
+            aria-label="Explore without signing in"
+            className="mt-8 pt-6 border-t text-sm text-muted-foreground text-center"
+          >
+            <p className="mb-3">Or explore without an account:</p>
+            <ul className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
+              {preAuthExploreRoutes.map((key) => {
+                const route = routes[key];
+                return (
+                  <li key={key}>
+                    <Link
+                      href={route.path}
+                      className="text-primary hover:underline"
+                    >
+                      {route.shortLabel || route.label}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+            <p className="mt-4 text-xs">
+              Trouble signing in?{' '}
+              <Link href="/help-center" className="text-primary hover:underline">
+                Visit the Help Center
+              </Link>
+              .
+            </p>
+          </nav>
         </div>
       </section>
     </div>

@@ -5,8 +5,12 @@ import { usePathname } from 'next/navigation';
 import { LogOut, Search, User } from 'lucide-react';
 import { useAuth } from '@/components/AuthProvider';
 import { routes, headerNavRoutes } from '@/lib/routes';
-import { MobileNav } from '@/components/MobileNav';
 import { regentPartnerUrl } from '@/lib/site';
+
+function isActive(pathname: string, routePath: string): boolean {
+  if (routePath === '/') return pathname === '/';
+  return pathname === routePath || pathname.startsWith(`${routePath}/`);
+}
 
 export function Header() {
   const { user, loading, signOut } = useAuth();
@@ -27,17 +31,17 @@ export function Header() {
         <nav className="hidden md:flex items-center gap-6" aria-label="Main navigation">
           {headerNavRoutes.map((key) => {
             const route = routes[key];
-            const isActive = pathname === route.path;
+            const active = isActive(pathname, route.path);
             return (
               <Link
                 key={key}
                 href={route.path}
-                className={`text-sm transition-colors ${
-                  isActive
+                className={`text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded ${
+                  active
                     ? 'text-foreground font-medium'
                     : 'text-muted-foreground hover:text-foreground'
                 }`}
-                aria-current={isActive ? 'page' : undefined}
+                aria-current={active ? 'page' : undefined}
               >
                 {route.shortLabel || route.label}
               </Link>
@@ -45,10 +49,14 @@ export function Header() {
           })}
         </nav>
 
-        <div className="flex items-center gap-4">
-          <button className="p-2 hover:bg-muted rounded-lg transition" aria-label="Search">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <Link
+            href="/keywords"
+            className="p-2 hover:bg-muted rounded-lg transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            aria-label="Search keywords"
+          >
             <Search className="w-5 h-5" />
-          </button>
+          </Link>
           {loading ? (
             <div className="h-9 w-24 rounded-lg bg-muted animate-pulse" />
           ) : user ? (
@@ -67,16 +75,30 @@ export function Header() {
                 <span className="hidden sm:inline">Sign out</span>
               </button>
             </div>
-          ) : null}
+          ) : (
+            <Link
+              href={routes.signIn.path}
+              className="btn-outline px-3 py-2 text-sm hidden sm:inline-flex focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              aria-current={isActive(pathname, routes.signIn.path) ? 'page' : undefined}
+            >
+              Sign in
+            </Link>
+          )}
           <a
             href={regentPartnerUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="hidden md:inline-block btn-primary px-4 py-2 text-sm"
+            className="btn-primary px-4 py-2 text-sm hidden md:inline-block"
           >
             Try SEO AI Regent
           </a>
-          <MobileNav />
+          <Link
+            href={routes.signIn.path}
+            className="md:hidden p-2 hover:bg-muted rounded-lg transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            aria-label="Sign in"
+          >
+            <User className="w-5 h-5" />
+          </Link>
         </div>
       </div>
     </header>

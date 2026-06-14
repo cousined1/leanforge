@@ -5,7 +5,8 @@ import { getTrendingKeywords, Keyword } from '@/lib/api';
 import { KeywordGrid } from '@/components/KeywordGrid';
 import { RegentCTA } from '@/components/RegentCTA';
 import { TrendChart } from '@/components/TrendChart';
-import { Sparkles } from 'lucide-react';
+import { RelatedLinks } from '@/components/RelatedLinks';
+import { Sparkles, Search, BookOpen, Mail } from 'lucide-react';
 import Link from 'next/link';
 
 export function HomeContent() {
@@ -33,7 +34,7 @@ export function HomeContent() {
         <div className="container max-w-4xl">
           <div className="text-center mb-12">
             <div className="inline-flex items-center gap-2 mb-4 px-4 py-2 rounded-full bg-primary/10 border border-primary/20">
-              <Sparkles className="w-4 h-4" />
+              <Sparkles className="w-4 h-4" aria-hidden="true" />
               <span className="text-sm font-medium">Real-time Trend Intelligence</span>
             </div>
             <h1 className="text-4xl md:text-6xl font-bold mb-4 leading-tight">
@@ -42,18 +43,21 @@ export function HomeContent() {
             <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
               Powered by Google Trends and search volume data. Track keywords across SEO, AI, SaaS, and more.
             </p>
-            <div className="flex items-center justify-center gap-4">
-              <Link href="/keywords">
-                <button className="btn-primary px-6 py-3 text-lg">
-                  Explore Keywords
-                </button>
+            <div className="flex flex-wrap items-center justify-center gap-3">
+              <Link
+                href="/keywords"
+                className="btn-primary px-6 py-3 text-lg inline-flex items-center gap-2"
+              >
+                <Search className="w-4 h-4" aria-hidden="true" />
+                Explore Keywords
               </Link>
-              <Link href="/api-docs">
-                <button className="btn-outline px-6 py-3 text-lg">
-                  API Documentation
-                </button>
+              <Link href="/api-docs" className="btn-outline px-6 py-3 text-lg">
+                API Documentation
               </Link>
-              <Link href="/pricing" className="text-primary hover:underline text-lg font-medium ml-2">
+              <Link
+                href="/pricing"
+                className="text-primary hover:underline text-lg font-medium"
+              >
                 View Pricing →
               </Link>
             </div>
@@ -91,8 +95,11 @@ export function HomeContent() {
               <h2 className="text-3xl font-bold mb-2">Trending Now</h2>
               <p className="text-muted-foreground">Keywords with the highest momentum</p>
             </div>
-            <Link href="/keywords?direction=rising">
-              <button className="btn-outline px-4 py-2">View All</button>
+            <Link
+              href="/keywords?direction=rising"
+              className="btn-outline px-4 py-2"
+            >
+              View All
             </Link>
           </div>
 
@@ -115,8 +122,11 @@ export function HomeContent() {
               <h2 className="text-3xl font-bold mb-2">Browse by Category</h2>
               <p className="text-muted-foreground">Explore keywords by industry</p>
             </div>
-            <Link href="/categories">
-              <button className="btn-outline px-4 py-2">View All Categories</button>
+            <Link
+              href="/categories"
+              className="btn-outline px-4 py-2"
+            >
+              View All Categories
             </Link>
           </div>
 
@@ -129,18 +139,46 @@ export function HomeContent() {
               { name: 'Security', icon: '🔒', slug: 'security' },
               { name: 'Carbon & ESG', icon: '🌍', slug: 'carbon' },
             ].map((cat) => (
-              <Link key={cat.slug} href={`/categories/${cat.slug}`}>
-                <div className="card p-6 text-center hover:shadow-md transition-shadow cursor-pointer">
-                  <div className="text-4xl mb-3">{cat.icon}</div>
-                  <h3 className="font-semibold">{cat.name}</h3>
-                </div>
+              <Link
+                key={cat.slug}
+                href={`/categories/${cat.slug}`}
+                className="card p-6 text-center hover:shadow-md transition-shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-lg"
+              >
+                <div className="text-4xl mb-3" aria-hidden="true">{cat.icon}</div>
+                <h3 className="font-semibold">{cat.name}</h3>
               </Link>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="py-12 border-b">
+      <RelatedLinks
+        title="Why LeanForge"
+        description="A focused set of features for SEO and content teams who need real demand signals, not vanity metrics."
+        columns={3}
+        links={[
+          {
+            href: '/features',
+            label: 'All features',
+            description: 'Trend tracking, velocity scoring, REST API, daily snapshots, category filtering.',
+            icon: BookOpen,
+          },
+          {
+            href: '/use-cases',
+            label: 'How teams use it',
+            description: 'SEO, content, agencies, developers, analysts, founders — see the workflows.',
+            icon: Search,
+          },
+          {
+            href: '/pricing',
+            label: 'Pricing',
+            description: 'Free MVP tier, partner offer, and enterprise plans. No credit card required.',
+            icon: Mail,
+          },
+        ]}
+      />
+
+      <section className="py-12 border-t">
         <div className="container max-w-4xl text-center">
           <h3 className="text-xl font-bold mb-2">Have questions?</h3>
           <p className="text-muted-foreground">
@@ -148,6 +186,10 @@ export function HomeContent() {
             <Link href="/faq" className="text-primary hover:underline">FAQ</Link>
             {' '}or learn about our{' '}
             <Link href="/features" className="text-primary hover:underline">features</Link>.
+            {' '}Need help getting started?{' '}
+            <Link href="/contact" className="text-primary hover:underline">Contact us</Link>
+            {' '}or visit the{' '}
+            <Link href="/help-center" className="text-primary hover:underline">Help Center</Link>.
           </p>
         </div>
       </section>

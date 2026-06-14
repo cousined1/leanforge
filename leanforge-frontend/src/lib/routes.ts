@@ -11,6 +11,7 @@ export const routes: Record<string, RouteDef> = {
   keywordDetail: { path: '/keywords/[slug]', label: 'Keyword Detail' },
   categories: { path: '/categories', label: 'Categories', description: 'Explore keyword trends organized by category.' },
   categoryDetail: { path: '/categories/[slug]', label: 'Category Detail' },
+  useCases: { path: '/use-cases', label: 'Use Cases', description: 'Common ways SEO and content teams use LeanForge keyword trend data.' },
   apiDocs: { path: '/api-docs', label: 'API Documentation', shortLabel: 'API' },
   pricing: { path: '/pricing', label: 'Pricing', description: 'Choose the plan that fits your keyword intelligence needs.' },
   features: { path: '/features', label: 'Features', description: 'Discover LeanForge features for keyword trend analysis.' },
@@ -27,15 +28,37 @@ export const routes: Record<string, RouteDef> = {
 
 export type RouteKey = keyof typeof routes;
 
-export const headerNavRoutes: RouteKey[] = ['features', 'pricing', 'keywords', 'categories', 'apiDocs'];
+/**
+ * Primary navigation shown in the header. Order is the visual order.
+ * 5-6 items to avoid overcrowding on desktop and mobile.
+ */
+export const headerNavRoutes: RouteKey[] = ['features', 'pricing', 'keywords', 'categories', 'apiDocs', 'useCases'];
 
-export const footerProductRoutes: RouteKey[] = ['keywords', 'categories', 'features', 'pricing', 'apiDocs'];
+/**
+ * Footer product section: core product surfaces.
+ */
+export const footerProductRoutes: RouteKey[] = ['features', 'pricing', 'keywords', 'categories', 'useCases', 'apiDocs'];
 
+/**
+ * Footer company section: trust + team.
+ */
 export const footerCompanyRoutes: RouteKey[] = ['about', 'contact', 'helpCenter'];
 
-export const footerResourceRoutes: RouteKey[] = ['faq', 'apiDocs'];
+/**
+ * Footer resources section: learning material.
+ */
+export const footerResourceRoutes: RouteKey[] = ['faq', 'helpCenter', 'apiDocs'];
 
+/**
+ * Footer legal section: required disclosures.
+ */
 export const footerLegalRoutes: RouteKey[] = ['privacy', 'terms', 'cookies', 'disclaimer'];
+
+/**
+ * Pages reachable from the Sign-In call-to-action (logged-out users).
+ * Drives the "Or explore:" strip on /sign-in and the auth callback page.
+ */
+export const preAuthExploreRoutes: RouteKey[] = ['features', 'pricing', 'keywords', 'useCases'];
 
 export const sitemapPublicRoutes: Array<{
   path: string;
@@ -48,17 +71,18 @@ export const sitemapPublicRoutes: Array<{
   { path: '/categories', label: 'Categories', changefreq: 'weekly', priority: 0.8 },
   { path: '/features', label: 'Features', changefreq: 'monthly', priority: 0.8 },
   { path: '/pricing', label: 'Pricing', changefreq: 'monthly', priority: 0.8 },
+  { path: '/use-cases', label: 'Use Cases', changefreq: 'monthly', priority: 0.7 },
   { path: '/api-docs', label: 'API Documentation', changefreq: 'weekly', priority: 0.7 },
   { path: '/help-center', label: 'Help Center', changefreq: 'monthly', priority: 0.6 },
   { path: '/faq', label: 'FAQ', changefreq: 'monthly', priority: 0.6 },
+  { path: '/about', label: 'About', changefreq: 'monthly', priority: 0.5 },
+  { path: '/contact', label: 'Contact', changefreq: 'monthly', priority: 0.5 },
 ];
 
 export const sitemapLegalRoutes: Array<{
   path: string;
   label: string;
 }> = [
-  { path: '/about', label: 'About' },
-  { path: '/contact', label: 'Contact' },
   { path: '/privacy', label: 'Privacy Policy' },
   { path: '/terms', label: 'Terms of Service' },
   { path: '/cookies', label: 'Cookie Policy' },

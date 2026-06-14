@@ -1,7 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { Code } from 'lucide-react';
+import { Code, BookOpen, Search, CreditCard, HelpCircle } from 'lucide-react';
+import { RelatedLinks } from '@/components/RelatedLinks';
 
 const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.lean-forge.net/api/v1';
 
@@ -157,6 +158,32 @@ console.log(data);`}</pre>
           </div>
         </div>
       </section>
+
+      <RelatedLinks
+        title="Learn the rest of the product"
+        description="The API is one surface. Browse the data, pricing, and team workflows that go with it."
+        columns={3}
+        links={[
+          {
+            href: '/keywords',
+            label: 'Browse keywords',
+            description: 'See live trend data the API serves.',
+            icon: Search,
+          },
+          {
+            href: '/features',
+            label: 'Features',
+            description: 'What the API is built on top of.',
+            icon: BookOpen,
+          },
+          {
+            href: '/pricing',
+            label: 'Pricing',
+            description: 'Free tier limits, partner offer, and enterprise plans.',
+            icon: CreditCard,
+          },
+        ]}
+      />
     </div>
   );
 }

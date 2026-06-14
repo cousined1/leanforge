@@ -7,6 +7,7 @@ export const metadata: Metadata = buildMetadata({
   title: 'Completing Sign In',
   description: 'Complete your LeanForge social login callback.',
   path: '/auth/callback',
+  noindex: true,
 });
 
 export default function AuthCallbackPage() {

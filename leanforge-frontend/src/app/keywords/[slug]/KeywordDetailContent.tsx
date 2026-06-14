@@ -4,8 +4,9 @@ import { useEffect, useState } from 'react';
 import { getKeywordBySlug, Keyword, Trend } from '@/lib/api';
 import { TrendChart } from '@/components/TrendChart';
 import { RegentCTA } from '@/components/RegentCTA';
+import { RelatedLinks } from '@/components/RelatedLinks';
 import { formatNumber, getDirectionColor, getDirectionIcon } from '@/lib/utils';
-import { Loader } from 'lucide-react';
+import { Loader, TrendingUp, BarChart3, BookOpen, Search } from 'lucide-react';
 import Link from 'next/link';
 
 interface KeywordDetailContentProps {
@@ -45,9 +46,13 @@ export function KeywordDetailContent({ slug }: KeywordDetailContentProps) {
       <div className="container py-12">
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-2">Keyword not found</h1>
-          <p className="text-muted-foreground">
+          <p className="text-muted-foreground mb-6">
             The keyword you&apos;re looking for doesn&apos;t exist.
           </p>
+          <div className="flex items-center justify-center gap-3 text-sm">
+            <Link href="/keywords" className="btn-primary px-4 py-2">Browse all keywords</Link>
+            <Link href="/categories" className="btn-outline px-4 py-2">All categories</Link>
+          </div>
         </div>
       </div>
     );
@@ -58,6 +63,8 @@ export function KeywordDetailContent({ slug }: KeywordDetailContentProps) {
     interest: trend.interest,
     volume: trend.volume,
   }));
+
+  const categoryLower = (keyword.category || '').toLowerCase();
 
   return (
     <div>
@@ -74,16 +81,24 @@ export function KeywordDetailContent({ slug }: KeywordDetailContentProps) {
                   : 'bg-gray-50 text-gray-700'
               }`}
             >
-              <span className="mr-1">{getDirectionIcon(keyword.direction)}</span>
+              <span className="mr-1" aria-hidden="true">{getDirectionIcon(keyword.direction)}</span>
               {keyword.direction.charAt(0).toUpperCase() + keyword.direction.slice(1)}
             </div>
-            <span className="px-3 py-1 rounded-full text-sm font-medium bg-blue-50 text-blue-700">
-              Category: {keyword.category}
-            </span>
+            {keyword.category && (
+              <Link
+                href={`/categories/${categoryLower}`}
+                className="px-3 py-1 rounded-full text-sm font-medium bg-blue-50 text-blue-700 hover:bg-blue-100 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              >
+                Category: {keyword.category}
+              </Link>
+            )}
           </div>
-          <div className="flex gap-4 text-sm">
-            <Link href="/keywords" className="text-primary hover:underline">← Browse all keywords</Link>
-            <Link href={`/categories/${keyword.category.toLowerCase()}`} className="text-primary hover:underline">Browse {keyword.category} keywords →</Link>
+          <div className="flex flex-wrap gap-4 text-sm">
+            <Link href="/keywords" className="text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded">← Browse all keywords</Link>
+            {keyword.category && (
+              <Link href={`/categories/${categoryLower}`} className="text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded">Browse {keyword.category} keywords →</Link>
+            )}
+            <Link href="/api-docs" className="text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded">API endpoint</Link>
           </div>
         </div>
       </section>
@@ -125,6 +140,36 @@ export function KeywordDetailContent({ slug }: KeywordDetailContentProps) {
           </div>
         </div>
       </section>
+
+      <RelatedLinks
+        title="Keep exploring"
+        description="Use the data in your workflow or compare with neighboring keywords."
+        columns={3}
+        links={[
+          {
+            href: '/keywords?direction=rising',
+            label: 'Rising keywords',
+            description: 'All keywords currently trending up, sorted by score.',
+            icon: TrendingUp,
+          },
+          ...(keyword.category
+            ? [
+                {
+                  href: `/categories/${categoryLower}`,
+                  label: `${keyword.category} keywords`,
+                  description: `Other tracked keywords in the ${keyword.category} category.`,
+                  icon: Search,
+                },
+              ]
+            : []),
+          {
+            href: '/features',
+            label: 'How trend scores work',
+            description: 'Read about velocity, direction, and composite scoring.',
+            icon: BarChart3,
+          },
+        ]}
+      />
 
       <section className="py-16">
         <div className="container max-w-4xl">

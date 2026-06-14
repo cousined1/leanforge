@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { JsonLd, breadcrumbLd } from '@/components/JsonLd';
+import { RelatedLinks } from '@/components/RelatedLinks';
 import { buildMetadata } from '@/lib/seo';
 import { absoluteUrl } from '@/lib/site';
 import {
@@ -12,6 +13,9 @@ import {
   Calendar,
   Filter,
   ArrowRight,
+  Search,
+  BookOpen,
+  Briefcase,
 } from 'lucide-react';
 
 export const metadata: Metadata = buildMetadata({
@@ -82,6 +86,32 @@ export default function FeaturesPage() {
           </div>
         </div>
       </section>
+      <RelatedLinks
+        title="Explore the data"
+        description="See the features in action or read the docs that describe them."
+        columns={3}
+        links={[
+          {
+            href: '/keywords',
+            label: 'Browse keywords',
+            description: 'See real trending data across all 6 categories.',
+            icon: Search,
+          },
+          {
+            href: '/use-cases',
+            label: 'Use cases',
+            description: 'How SEO, content, and dev teams put these features to work.',
+            icon: Briefcase,
+          },
+          {
+            href: '/api-docs',
+            label: 'API documentation',
+            description: 'Endpoints, examples, and TypeScript types for every feature.',
+            icon: BookOpen,
+          },
+        ]}
+      />
+
       <section className="py-12 border-t">
         <div className="container max-w-2xl text-center">
           <h2 className="text-xl font-bold mb-4">Ready to get started?</h2>
