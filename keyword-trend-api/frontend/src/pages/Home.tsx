@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import type { Category, Keyword } from '../types';
 import { fetchTrendingKeywords, fetchCategories } from '../api';
 import KeywordCard from '../components/KeywordCard';
@@ -6,6 +7,7 @@ import CategoryChip from '../components/CategoryChip';
 import { RegentCtaConditional } from '../components/RegentCta';
 import PricingTable from '../components/PricingTable';
 import LoadingSkeleton from '../components/LoadingSkeleton';
+import { Seo } from '../components/Seo';
 
 export default function Home() {
   const [keywords, setKeywords] = useState<Keyword[]>([]);
@@ -32,7 +34,18 @@ export default function Home() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 space-y-10">
-      {/* Hero */}
+      <Seo
+        title="Keyword Trend Intelligence"
+        description="Real-time keyword trend scoring, velocity tracking, and competitive intelligence for SEO professionals. Browse 80+ keywords across SEO, AI, SaaS, and more."
+        path="/"
+        jsonLd={{
+          '@type': 'WebPage',
+          name: 'LeanForge Keyword Trend Index',
+          description:
+            'Discover trending keywords before your competitors. Powered by Google Trends and search volume data.',
+        }}
+      />
+
       <section className="text-center py-12 space-y-4">
         <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight">
           Keyword <span className="gradient-text">Trend Intelligence</span>
