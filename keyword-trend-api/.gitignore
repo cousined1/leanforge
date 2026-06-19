@@ -2,6 +2,7 @@ node_modules/
 dist/
 frontend/node_modules
 frontend/dist
+frontend/dist-ssr
 .env
 .env.local
 .env.production

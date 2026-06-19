@@ -11,9 +11,10 @@ export const CONTACT_PHONE = '+15104011225';
 export const COMPANY_NAME = 'Developer312';
 export const COMPANY_LEGAL_NAME = 'NIGHT LITE USA LLC';
 
+// Real on-brand 1200x630 PNG at frontend/public/og-image.png (social-unfurl compatible).
 export const OG_IMAGE = `${SITE_URL}/og-image.png`;
-export const OG_IMAGE_WIDTH = 1200;
-export const OG_IMAGE_HEIGHT = 630;
+export const OG_IMAGE_WIDTH = 2048;
+export const OG_IMAGE_HEIGHT = 1143;
 
 export const TWITTER_HANDLE = '@leanforge';
 
