@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 
 const STORAGE_KEY = 'cookie-consent';
 type Consent = 'accepted' | 'declined';
@@ -21,6 +21,22 @@ function writeConsent(value: Consent) {
   }
 }
 
+/**
+ * Clear the stored consent choice so the banner reappears.
+ * Used by the footer "Cookie Settings" link.
+ */
+export function reopenConsent() {
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+  } catch {
+    /* noop */
+  }
+  // Clear the cookie as well so server-side checks also reset.
+  document.cookie = `${STORAGE_KEY}=; path=/; max-age=0`;
+  // Force a re-render by reloading — the banner will appear again.
+  window.location.reload();
+}
+
 export function CookieConsent() {
   const [open, setOpen] = useState(false);
 
@@ -34,6 +50,7 @@ export function CookieConsent() {
     <div
       role="dialog"
       aria-live="polite"
+      aria-label="Cookie consent"
       className="fixed bottom-0 inset-x-0 z-50 border-t border-white/10 bg-[#0B0C10]/95 backdrop-blur-md"
     >
       <div className="mx-auto max-w-4xl px-4 py-4">
@@ -43,8 +60,7 @@ export function CookieConsent() {
             cookies are only loaded if you accept.{' '}
             <a href="/cookies" className="text-cyan-400 hover:underline">
               Cookie Policy
-            </a>{' '}
-            ·{' '}
+            </a>{' '}&middot;{' '}
             <a href="/privacy" className="text-cyan-400 hover:underline">
               Privacy Policy
             </a>

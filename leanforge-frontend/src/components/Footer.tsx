@@ -1,5 +1,6 @@
-import Link from 'next/link';
+﻿import Link from 'next/link';
 import { routes, footerProductRoutes, footerCompanyRoutes, footerResourceRoutes, footerLegalRoutes } from '@/lib/routes';
+import { reopenConsent } from '@/components/CookieConsent';
 
 const currentYear = new Date().getFullYear();
 
@@ -121,6 +122,15 @@ export function Footer() {
                   </li>
                 );
               })}
+              <li>
+                <button
+                  type="button"
+                  onClick={reopenConsent}
+                  className="text-foreground/80 hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded text-sm"
+                >
+                  Cookie Settings
+                </button>
+              </li>
             </ul>
           </div>
         </div>

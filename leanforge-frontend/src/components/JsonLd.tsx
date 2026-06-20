@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 
 interface JsonLdProps {
   data: Record<string, unknown>;
@@ -45,7 +45,7 @@ export function websiteLd() {
       '@type': 'SearchAction',
       'target': {
         '@type': 'EntryPoint',
-        urlTemplate: 'https://lean-forge.net/keywords?search={search_term_string}',
+        urlTemplate: 'https://lean-forge.net/keywords?q={search_term_string}',
       },
       'query-input': 'required name=search_term_string',
     },
@@ -74,3 +74,5 @@ export function webPageLd(url: string, name: string, description: string) {
     description,
   };
 }
+
+

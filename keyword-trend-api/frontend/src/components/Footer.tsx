@@ -1,5 +1,6 @@
-import { Link } from 'react-router-dom';
+﻿import { Link } from 'react-router-dom';
 import { COMPANY_LEGAL_NAME, CONTACT_EMAIL } from '../lib/site';
+import { reopenConsent } from './CookieConsent';
 
 const productLinks = [
   { label: 'Trending', to: '/' },
@@ -87,12 +88,21 @@ export default function Footer() {
                   </Link>
                 </li>
               ))}
+              <li>
+                <button
+                  type="button"
+                  onClick={reopenConsent}
+                  className="text-white/50 hover:text-white transition-colors text-left"
+                >
+                  Cookie Settings
+                </button>
+              </li>
             </ul>
           </div>
         </div>
 
         <div className="border-t border-white/5 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-white/30">
-          <span>© {new Date().getFullYear()} Developer312. All rights reserved.</span>
+          <span>&copy; {new Date().getFullYear()} Developer312. All rights reserved.</span>
           <span>
             LeanForge provides SEO trend data and informational guidance. Results are not
             guaranteed. Use at your own discretion.

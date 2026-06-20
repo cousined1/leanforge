@@ -1,4 +1,4 @@
-export const SITE_URL = 'https://lean-forge.net';
+﻿export const SITE_URL = 'https://lean-forge.net';
 export const SITE_NAME = 'LeanForge Keyword Trend Index';
 export const SITE_SHORT_NAME = 'LeanForge';
 export const SITE_DESCRIPTION =
@@ -13,8 +13,8 @@ export const COMPANY_LEGAL_NAME = 'NIGHT LITE USA LLC';
 
 // Real on-brand 1200x630 PNG at frontend/public/og-image.png (social-unfurl compatible).
 export const OG_IMAGE = `${SITE_URL}/og-image.png`;
-export const OG_IMAGE_WIDTH = 2048;
-export const OG_IMAGE_HEIGHT = 1143;
+export const OG_IMAGE_WIDTH = 1200;
+export const OG_IMAGE_HEIGHT = 630;
 
 export const TWITTER_HANDLE = '@leanforge';
 
@@ -42,3 +42,4 @@ export const defaultSeo: Required<Pick<SeoParams, 'title' | 'description' | 'ogT
   path: '/',
   ogType: 'website',
 };
+

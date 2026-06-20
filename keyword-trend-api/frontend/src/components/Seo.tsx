@@ -1,4 +1,4 @@
-import { Helmet } from 'react-helmet-async';
+﻿import { Helmet } from 'react-helmet-async';
 import {
   SITE_NAME,
   SITE_SHORT_NAME,
@@ -99,7 +99,7 @@ export function websiteLd() {
       '@type': 'SearchAction',
       target: {
         '@type': 'EntryPoint',
-        urlTemplate: `${SITE_URL}/keyword/{search_term_string}`,
+        urlTemplate: `${SITE_URL}/keywords?q={search_term_string}`,
       },
       'query-input': 'required name=search_term_string',
     },
@@ -128,3 +128,4 @@ export function breadcrumbLd(items: Array<{ name: string; url: string }>) {
     })),
   };
 }
+

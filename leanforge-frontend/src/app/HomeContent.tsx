@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useState } from 'react';
 import { getTrendingKeywords, Keyword } from '@/lib/api';
@@ -12,14 +12,16 @@ import Link from 'next/link';
 export function HomeContent() {
   const [keywords, setKeywords] = useState<Keyword[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     const fetchTrending = async () => {
       try {
         const result = await getTrendingKeywords({ limit: 6 });
         setKeywords(result.data);
-      } catch (error) {
-        console.error('Failed to fetch trending keywords:', error);
+      } catch (err) {
+        console.error('Failed to fetch trending keywords:', err);
+        setError(true);
       } finally {
         setLoading(false);
       }
@@ -58,7 +60,7 @@ export function HomeContent() {
                 href="/pricing"
                 className="text-primary hover:underline text-lg font-medium"
               >
-                View Pricing →
+                View Pricing &rarr;
               </Link>
             </div>
           </div>
@@ -108,6 +110,16 @@ export function HomeContent() {
               {[...Array(6)].map((_, i) => (
                 <div key={i} className="card p-4 h-48 bg-muted animate-pulse"></div>
               ))}
+            </div>
+          ) : error || keywords.length === 0 ? (
+            <div className="text-center py-12 max-w-md mx-auto">
+              <h3 className="text-lg font-semibold mb-2">Trending keywords loading soon</h3>
+              <p className="text-sm text-muted-foreground mb-6">
+                We are refreshing keyword data. Check back shortly or browse all keywords.
+              </p>
+              <Link href="/keywords" className="btn-primary px-4 py-2 text-sm">
+                Browse All Keywords
+              </Link>
             </div>
           ) : (
             <KeywordGrid keywords={keywords} />
