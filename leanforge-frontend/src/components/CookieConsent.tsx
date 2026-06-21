@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useSyncExternalStore } from 'react';
 import Link from 'next/link';
@@ -34,7 +34,7 @@ export function CookieConsent() {
   if (choice !== null) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 border-t bg-background shadow-lg">
+    <div className="fixed bottom-0 left-0 right-0 z-50 border-t bg-background shadow-lg" role="dialog" aria-label="Cookie consent">
       <div className="container py-4">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 max-w-4xl mx-auto">
           <div className="text-sm text-muted-foreground flex-1">
@@ -69,5 +69,16 @@ export function CookieConsent() {
         </div>
       </div>
     </div>
+  );
+}
+
+/**
+ * Re-open the cookie consent banner by clearing the stored choice.
+ * Used by the footer "Cookie Settings" link.
+ */
+export function reopenConsent() {
+  localStorage.removeItem(CONSENT_STORAGE_KEY);
+  window.dispatchEvent(
+    new CustomEvent(CONSENT_CHANGE_EVENT, { detail: { choice: null } })
   );
 }

@@ -1,5 +1,6 @@
 // src/index.ts
 import path from 'path';
+import fs from 'fs';
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -33,6 +34,11 @@ if (config.NODE_ENV === 'production') {
 
 // Security & compression
 app.use(helmet());
+// helmet does not set Permissions-Policy; lock down powerful features we never use.
+app.use((_req, res, next) => {
+  res.setHeader('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
+  next();
+});
 app.use(compression());
 app.use((req, res, next) => {
   if (
@@ -108,9 +114,66 @@ if (config.NODE_ENV === 'production') {
   const frontendDist = path.resolve(__dirname, '..', 'frontend', 'dist');
   app.use(express.static(frontendDist));
 
-  // SPA fallback: non-API routes serve index.html so React Router handles them
-  app.get(/^\/(?!api\/|health).*/, (_req, res) => {
-    res.sendFile(path.join(frontendDist, 'index.html'));
+  // Prerender (frontend/prerender.mjs) writes static HTML per marketing route and a
+  // pristine SPA shell. Dynamic/unmatched routes fall back to the shell so they don't
+  // inherit the prerendered homepage's content/canonical. If prerender didn't run,
+  // gracefully fall back to the plain index.html.
+  const appShell = path.join(frontendDist, 'app-shell.html');
+  const spaFallback = fs.existsSync(appShell)
+    ? appShell
+    : path.join(frontendDist, 'index.html');
+
+  app.get('/sitemap.xml', (_req, res) => {
+    const SITE = 'https://lean-forge.net';
+    const now = new Date().toISOString().slice(0, 10);
+    const publicRoutes: Array<{ path: string; priority: number; changefreq: string }> = [
+      { path: '/', priority: 1.0, changefreq: 'daily' },
+      { path: '/features', priority: 0.8, changefreq: 'monthly' },
+      { path: '/pricing', priority: 0.8, changefreq: 'monthly' },
+      { path: '/api-docs', priority: 0.7, changefreq: 'weekly' },
+      { path: '/help-center', priority: 0.6, changefreq: 'monthly' },
+      { path: '/faq', priority: 0.6, changefreq: 'monthly' },
+      { path: '/about', priority: 0.5, changefreq: 'monthly' },
+      { path: '/contact', priority: 0.5, changefreq: 'monthly' },
+      { path: '/privacy', priority: 0.5, changefreq: 'monthly' },
+      { path: '/terms', priority: 0.5, changefreq: 'monthly' },
+      { path: '/cookies', priority: 0.5, changefreq: 'monthly' },
+      { path: '/disclaimer', priority: 0.5, changefreq: 'monthly' },
+    ];
+
+    const urls = publicRoutes
+      .map(
+        (r) =>
+          `  <url>\n    <loc>${SITE}${r.path}</loc>\n    <lastmod>${now}</lastmod>\n    <changefreq>${r.changefreq}</changefreq>\n    <priority>${r.priority}</priority>\n  </url>`
+      )
+      .join('\n');
+
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>`;
+    res.set('Content-Type', 'application/xml; charset=utf-8');
+    res.set('Cache-Control', 'public, max-age=3600');
+    res.send(xml);
+  });
+
+  app.get('/robots.txt', (_req, res) => {
+    res.set('Content-Type', 'text/plain; charset=utf-8');
+    res.set('Cache-Control', 'public, max-age=86400');
+    res.send(
+      [
+        'User-Agent: *',
+        'Allow: /',
+        'Disallow: /api/',
+        'Disallow: /auth/',
+        'Disallow: /sign-in',
+        '',
+        'Sitemap: https://lean-forge.net/sitemap.xml',
+      ].join('\n')
+    );
+  });
+
+  // SPA fallback: non-API routes serve the SPA shell so React Router handles them.
+  // Prerendered marketing routes are already served above by express.static.
+  app.get(/^\/(?!api\/|health|sitemap\.xml|robots\.txt).*/, (_req, res) => {
+    res.sendFile(spaFallback);
   });
 }
 
