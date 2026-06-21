@@ -21,6 +21,8 @@ import SignIn from './pages/SignIn';
 import AuthCallback from './pages/AuthCallback';
 import ToolsIndex from './pages/tools/ToolsIndex';
 import ToolPage from './pages/tools/ToolPage';
+import BillingSuccess from './pages/BillingSuccess';
+import BillingCanceled from './pages/BillingCanceled';
 import NotFound from './pages/NotFound';
 
 function ScrollToTop() {
@@ -68,6 +70,8 @@ export default function App() {
         <Route path="/disclaimer" element={<Disclaimer />} />
         <Route path="/sign-in" element={<SignIn />} />
         <Route path="/auth/callback" element={<AuthCallback />} />
+        <Route path="/billing/success" element={<BillingSuccess />} />
+        <Route path="/billing/canceled" element={<BillingCanceled />} />
         <Route path="/tools" element={<ToolsIndex />} />
         <Route path="/tools/:slug" element={<ToolPage />} />
         <Route path="*" element={<NotFound />} />

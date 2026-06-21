@@ -1,7 +1,10 @@
-import { Link } from 'react-router-dom';
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { Seo } from '../components/Seo';
 import { Breadcrumbs, PageContainer } from '../components/Breadcrumbs';
 import { REGENT_PARTNER_URL } from '../lib/site';
+import { useAuth } from '../components/AuthProvider';
+import { STRIPE_PRICE_IDS, startSubscriptionCheckout } from '../lib/insforge';
 
 interface Tier {
   name: string;
@@ -9,8 +12,9 @@ interface Tier {
   period: string;
   description: string;
   features: string[];
+  plan?: 'starter' | 'growth'; // present => paid tier (Stripe checkout)
   cta: string;
-  ctaHref: string;
+  ctaHref?: string; // present => link tier (no checkout)
   highlighted?: boolean;
 }
 
@@ -19,53 +23,78 @@ const tiers: Tier[] = [
     name: 'Free',
     price: '$0',
     period: '/month',
-    description: 'Browse trending keywords and category insights at no cost during MVP.',
+    description: 'Browse trending keywords and use every free SEO tool at no cost.',
     features: [
       'Keyword trend browsing',
       'Category and direction filters',
-      'Public API endpoints',
+      'All free SEO tools',
       'No credit card required',
     ],
     cta: 'Browse Keywords',
     ctaHref: '/',
+  },
+  {
+    name: 'Starter',
+    price: '$29',
+    period: '/month',
+    description: 'For professionals who need deeper, faster keyword intelligence.',
+    features: [
+      '1,000 API calls / day',
+      '90-day trend history',
+      'Category filtering',
+      'Email support',
+    ],
+    plan: 'starter',
+    cta: 'Start Starter',
     highlighted: true,
   },
   {
-    name: 'Regent Partner',
-    price: 'From $29',
+    name: 'Growth',
+    price: '$99',
     period: '/month',
-    description: 'Need on-page optimization? Use our partner product for guided content actions.',
+    description: 'For teams that need comprehensive keyword intelligence.',
     features: [
-      'SEO optimization score',
-      'Actionable content recommendations',
-      'Built for execution after keyword discovery',
-      'Separate account and billing',
+      '10,000 API calls / day',
+      '365-day trend history',
+      'Keyword comparison',
+      'Priority support',
     ],
-    cta: 'Try SEO AI Regent',
-    ctaHref: REGENT_PARTNER_URL,
-  },
-  {
-    name: 'Enterprise',
-    price: 'Custom',
-    period: '',
-    description: 'Planning private datasets, custom SLAs, or dedicated support?',
-    features: [
-      'Custom integrations',
-      'Private data feeds',
-      'Roadmap collaboration',
-      'Commercial support',
-    ],
-    cta: 'Contact Us',
-    ctaHref: '/contact',
+    plan: 'growth',
+    cta: 'Start Growth',
   },
 ];
 
 export default function Pricing() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  async function handleSubscribe(plan: 'starter' | 'growth') {
+    setError(null);
+    const priceId = STRIPE_PRICE_IDS[plan];
+    if (!priceId) {
+      setError('Paid plans are launching soon — check back shortly.');
+      return;
+    }
+    if (!user) {
+      navigate('/sign-in');
+      return;
+    }
+    setLoading(plan);
+    try {
+      await startSubscriptionCheckout({ stripePriceId: priceId, userId: user.id, email: user.email });
+    } catch {
+      setError('Could not start checkout. Please try again.');
+      setLoading(null);
+    }
+  }
+
   return (
     <>
       <Seo
         title="Pricing"
-        description="LeanForge pricing — free tier for browsing trends, Regent partner offer for on-page optimization, and enterprise plans for custom needs."
+        description="LeanForge pricing — a free tier for browsing trends and free SEO tools, plus Starter and Growth plans for deeper keyword intelligence and API access."
         path="/pricing"
         jsonLd={{
           '@type': 'WebPage',
@@ -80,7 +109,7 @@ export default function Pricing() {
             Simple, <span className="gradient-text">Transparent Pricing</span>
           </h1>
           <p className="text-white/50 text-sm sm:text-base">
-            LeanForge is free during MVP. Paid partner options are clearly labeled.
+            Start free. Upgrade for more API calls, longer trend history, and priority support.
           </p>
         </section>
 
@@ -112,38 +141,54 @@ export default function Pricing() {
                     </li>
                   ))}
                 </ul>
-                {tier.ctaHref.startsWith('http') ? (
-                  <a
-                    href={tier.ctaHref}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={tier.highlighted ? 'btn-primary justify-center' : 'btn-outline justify-center'}
-                  >
-                    {tier.cta}
-                  </a>
-                ) : (
+                {tier.ctaHref ? (
                   <Link
                     to={tier.ctaHref}
                     className={tier.highlighted ? 'btn-primary justify-center' : 'btn-outline justify-center'}
                   >
                     {tier.cta}
                   </Link>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => handleSubscribe(tier.plan!)}
+                    disabled={loading !== null}
+                    className={`${tier.highlighted ? 'btn-primary' : 'btn-outline'} justify-center disabled:opacity-50`}
+                  >
+                    {loading === tier.plan ? 'Redirecting…' : tier.cta}
+                  </button>
                 )}
               </div>
             ))}
           </div>
+          {error && (
+            <p className="text-center text-brand-red text-sm mt-4" role="alert">
+              {error}
+            </p>
+          )}
         </section>
 
-        <section className="text-center max-w-2xl mx-auto space-y-4">
-          <h2 className="text-xl font-bold">Questions about pricing?</h2>
+        <section className="text-center max-w-2xl mx-auto space-y-3">
           <p className="text-white/50 text-sm">
-            Check our{' '}
+            Need on-page optimization?{' '}
+            <a
+              href={REGENT_PARTNER_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-cyan-400 hover:underline"
+            >
+              Try SEO AI Regent
+            </a>
+            . Custom datasets or SLAs?{' '}
+            <Link to="/contact" className="text-cyan-400 hover:underline">
+              Contact us
+            </Link>
+            .
+          </p>
+          <p className="text-white/40 text-xs">
+            Questions? See the{' '}
             <Link to="/faq" className="text-cyan-400 hover:underline">
               FAQ
-            </Link>{' '}
-            for answers to common questions, or{' '}
-            <Link to="/contact" className="text-cyan-400 hover:underline">
-              contact our team
             </Link>
             .
           </p>

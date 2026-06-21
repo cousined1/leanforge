@@ -78,3 +78,46 @@ export async function signOut(): Promise<void> {
   const insforge = await getInsforge();
   await insforge.auth.signOut();
 }
+
+// ── Payments (InsForge native Stripe) ──────────────────────────────
+// Requires Stripe configured in InsForge (npx @insforge/cli payments ...) AND
+// RLS on payments.checkout_sessions / customer_portal_sessions. Price IDs come
+// from the InsForge-synced Stripe catalog, supplied via env. Inert until set.
+const STRIPE_ENV: 'test' | 'live' =
+  import.meta.env.VITE_STRIPE_ENV === 'live' ? 'live' : 'test';
+
+export const STRIPE_PRICE_IDS: Record<'starter' | 'growth', string> = {
+  starter: import.meta.env.VITE_STRIPE_PRICE_ID_STARTER ?? '',
+  growth: import.meta.env.VITE_STRIPE_PRICE_ID_GROWTH ?? '',
+};
+
+export async function startSubscriptionCheckout(args: {
+  stripePriceId: string;
+  userId: string;
+  email?: string;
+}): Promise<void> {
+  const insforge = await getInsforge();
+  const { data, error } = await insforge.payments.createCheckoutSession(STRIPE_ENV, {
+    mode: 'subscription',
+    lineItems: [{ priceId: args.stripePriceId, quantity: 1 }],
+    successUrl: `${window.location.origin}/billing/success`,
+    cancelUrl: `${window.location.origin}/billing/canceled`,
+    subject: { type: 'user', id: args.userId },
+    customerEmail: args.email ?? null,
+    idempotencyKey: `sub:${args.userId}:${args.stripePriceId}`,
+  });
+  if (error) throw new Error((error as { message?: string }).message ?? 'Checkout failed');
+  const url = (data as { checkoutSession?: { url?: string } } | null)?.checkoutSession?.url;
+  if (url) window.location.assign(url);
+}
+
+export async function openCustomerPortal(userId: string): Promise<void> {
+  const insforge = await getInsforge();
+  const { data, error } = await insforge.payments.createCustomerPortalSession(STRIPE_ENV, {
+    subject: { type: 'user', id: userId },
+    returnUrl: `${window.location.origin}/pricing`,
+  });
+  if (error) throw new Error((error as { message?: string }).message ?? 'Portal failed');
+  const url = (data as { customerPortalSession?: { url?: string } } | null)?.customerPortalSession?.url;
+  if (url) window.location.assign(url);
+}
