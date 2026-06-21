@@ -139,6 +139,18 @@ if (config.NODE_ENV === 'production') {
       { path: '/terms', priority: 0.5, changefreq: 'monthly' },
       { path: '/cookies', priority: 0.5, changefreq: 'monthly' },
       { path: '/disclaimer', priority: 0.5, changefreq: 'monthly' },
+      // Free SEO tool pages (keep in sync with frontend toolsConfig.ts)
+      { path: '/tools', priority: 0.9, changefreq: 'weekly' },
+      { path: '/tools/keyword-volume-checker', priority: 0.8, changefreq: 'weekly' },
+      { path: '/tools/trending-keywords', priority: 0.9, changefreq: 'daily' },
+      { path: '/tools/keyword-difficulty-checker', priority: 0.8, changefreq: 'weekly' },
+      { path: '/tools/google-trends-alternative', priority: 0.8, changefreq: 'weekly' },
+      { path: '/tools/keyword-velocity-tracker', priority: 0.8, changefreq: 'weekly' },
+      { path: '/tools/keyword-comparison-tool', priority: 0.8, changefreq: 'weekly' },
+      { path: '/tools/seo-keyword-research', priority: 0.8, changefreq: 'weekly' },
+      { path: '/tools/keyword-trend-chart', priority: 0.7, changefreq: 'monthly' },
+      { path: '/tools/long-tail-keyword-finder', priority: 0.8, changefreq: 'weekly' },
+      { path: '/tools/keyword-calculator', priority: 0.7, changefreq: 'monthly' },
     ];
 
     const urls = publicRoutes

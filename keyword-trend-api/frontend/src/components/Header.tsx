@@ -8,6 +8,7 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { label: 'Trending', to: '/' },
+  { label: 'Free Tools', to: '/tools' },
   { label: 'Features', to: '/features' },
   { label: 'Pricing', to: '/pricing' },
   { label: 'API', to: '/api-docs' },

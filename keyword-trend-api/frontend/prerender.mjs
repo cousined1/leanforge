@@ -49,10 +49,15 @@ async function main() {
     },
   });
 
-  const { render } = await import(pathToFileUrl(path.join(SSR_DIR, 'entry-server.js')));
+  const { render, TOOL_ROUTES = [] } = await import(
+    pathToFileUrl(path.join(SSR_DIR, 'entry-server.js'))
+  );
+
+  // Static marketing routes + the free SEO tool routes (from toolsConfig via entry-server).
+  const allRoutes = [...ROUTES, ...TOOL_ROUTES];
 
   let written = 0;
-  for (const route of ROUTES) {
+  for (const route of allRoutes) {
     const { appHtml, headTags } = render(route);
     if (!appHtml) throw new Error(`empty render for ${route}`);
 
@@ -70,7 +75,7 @@ async function main() {
   }
 
   await fs.rm(SSR_DIR, { recursive: true, force: true });
-  console.log(`[prerender] wrote ${written}/${ROUTES.length} static routes`);
+  console.log(`[prerender] wrote ${written}/${allRoutes.length} static routes`);
 }
 
 // Windows-safe ESM dynamic import of an absolute path.

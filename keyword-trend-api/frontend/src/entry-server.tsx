@@ -2,6 +2,11 @@ import { renderToString } from 'react-dom/server';
 import { StaticRouter } from 'react-router-dom/server';
 import { HelmetProvider, type HelmetServerState } from 'react-helmet-async';
 import App from './App';
+import { TOOLS } from './pages/tools/toolsConfig';
+
+// Static, prerenderable tool routes, derived from the single source of truth in
+// toolsConfig so prerender.mjs never drifts out of sync with the live routes.
+export const TOOL_ROUTES = ['/tools', ...TOOLS.map((t) => `/tools/${t.slug}`)];
 
 // Server render entry used ONLY by prerender.mjs at build time. Renders a route to an
 // HTML string plus the react-helmet-async head tags (title/description/og/twitter/
