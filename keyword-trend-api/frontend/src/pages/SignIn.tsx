@@ -1,21 +1,24 @@
-import { Link, useSearchParams } from 'react-router-dom';
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Seo } from '../components/Seo';
 import { Breadcrumbs, PageContainer } from '../components/Breadcrumbs';
-import { REGENT_PARTNER_URL } from '../lib/site';
+import { SOCIAL_PROVIDERS, signInWithProvider, type SocialProvider } from '../lib/insforge';
 
 export default function SignIn() {
-  const [params] = useSearchParams();
-  const callbackUrl = params.get('callbackUrl') || '/auth/callback';
-  const [loading, setLoading] = useState<string | null>(null);
+  const [loading, setLoading] = useState<SocialProvider | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleOAuth = (provider: 'google' | 'apple') => {
+  async function handleOAuth(provider: SocialProvider) {
+    setError(null);
     setLoading(provider);
-    // LeanForge uses InsForge for auth. Until that integration is wired
-    // through to the live API, we send the user to the partner product.
-    window.location.href =
-      provider === 'google' ? REGENT_PARTNER_URL : REGENT_PARTNER_URL;
-  };
+    try {
+      // Redirects the browser to the InsForge OAuth (PKCE) flow.
+      await signInWithProvider(provider);
+    } catch {
+      setError('Could not start sign-in. Please try again in a moment.');
+      setLoading(null);
+    }
+  }
 
   return (
     <>
@@ -38,27 +41,23 @@ export default function SignIn() {
           </div>
 
           <div className="glass-card p-6 space-y-3">
-            <button
-              type="button"
-              onClick={() => handleOAuth('google')}
-              disabled={loading !== null}
-              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-white text-[#0B0C10] font-semibold rounded-lg hover:bg-white/90 transition disabled:opacity-50"
-            >
-              {loading === 'google' ? 'Redirecting…' : 'Continue with Google'}
-            </button>
-            <button
-              type="button"
-              onClick={() => handleOAuth('apple')}
-              disabled={loading !== null}
-              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-black text-white border border-white/20 font-semibold rounded-lg hover:bg-white/10 transition disabled:opacity-50"
-            >
-              {loading === 'apple' ? 'Redirecting…' : 'Continue with Apple'}
-            </button>
+            {SOCIAL_PROVIDERS.map(({ id, label }) => (
+              <button
+                key={id}
+                type="button"
+                onClick={() => handleOAuth(id)}
+                disabled={loading !== null}
+                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg font-semibold hover:bg-white/10 hover:border-white/20 transition disabled:opacity-50"
+              >
+                {loading === id ? 'Redirecting…' : label}
+              </button>
+            ))}
 
-            <p className="text-xs text-white/40 text-center pt-2">
-              Auth is currently routed through our partner product (SEO AI Regent) while we
-              complete the native InsForge integration.
-            </p>
+            {error && (
+              <p className="text-xs text-brand-red text-center pt-1" role="alert">
+                {error}
+              </p>
+            )}
           </div>
 
           <p className="text-xs text-white/40 text-center">
@@ -72,8 +71,6 @@ export default function SignIn() {
             </Link>
             .
           </p>
-
-          <input type="hidden" value={callbackUrl} readOnly />
         </section>
       </PageContainer>
     </>

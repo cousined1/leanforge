@@ -1,0 +1,80 @@
+// InsForge auth client for the Vite SPA.
+//
+// SSR-safety: the SDK is loaded via dynamic import() and the client is only
+// constructed on first use in the browser. The prerender (entry-server.tsx /
+// prerender.mjs) renders App in Node and must NEVER evaluate the SDK, or it
+// would break the build-time SEO render. Only `import type` is used at module
+// scope (erased at compile), and getInsforge() runs solely from browser
+// effects / event handlers.
+
+import type { InsForgeClient } from '@insforge/sdk';
+
+const INSFORGE_URL = import.meta.env.VITE_INSFORGE_URL ?? '';
+const INSFORGE_ANON_KEY = import.meta.env.VITE_INSFORGE_ANON_KEY ?? '';
+
+export type SocialProvider = 'google' | 'github' | 'apple';
+
+// Providers shown on the sign-in page. Keep in sync with the providers enabled
+// in the InsForge dashboard (Authentication → OAuth Providers).
+export const SOCIAL_PROVIDERS: Array<{ id: SocialProvider; label: string }> = [
+  { id: 'google', label: 'Continue with Google' },
+  { id: 'github', label: 'Continue with GitHub' },
+];
+
+export interface AuthUser {
+  id: string;
+  email?: string;
+  name?: string;
+}
+
+export function isAuthConfigured(): boolean {
+  return Boolean(INSFORGE_URL && INSFORGE_ANON_KEY);
+}
+
+let clientPromise: Promise<InsForgeClient> | null = null;
+
+// Lazily import + construct the client (browser only). The SDK constructor
+// auto-detects `insforge_code` in the URL and completes the PKCE exchange, so
+// simply constructing it on the /auth/callback page resolves the session.
+function getInsforge(): Promise<InsForgeClient> {
+  if (!clientPromise) {
+    clientPromise = import('@insforge/sdk').then(({ createClient }) =>
+      createClient({ baseUrl: INSFORGE_URL, anonKey: INSFORGE_ANON_KEY })
+    );
+  }
+  return clientPromise;
+}
+
+function normalizeUser(raw: unknown): AuthUser | null {
+  if (!raw || typeof raw !== 'object') return null;
+  const u = raw as Record<string, any>;
+  if (!u.id) return null;
+  return {
+    id: String(u.id),
+    email: u.email ?? undefined,
+    name: u.name ?? u.profile?.name ?? undefined,
+  };
+}
+
+/** Start the OAuth/PKCE flow — redirects the browser to the provider. */
+export async function signInWithProvider(provider: SocialProvider): Promise<void> {
+  const insforge = await getInsforge();
+  await insforge.auth.signInWithOAuth({
+    provider,
+    redirectTo: `${window.location.origin}/auth/callback`,
+  });
+}
+
+/** Resolve the current session (waits for a pending OAuth callback exchange). */
+export async function fetchCurrentUser(): Promise<AuthUser | null> {
+  if (!isAuthConfigured()) return null;
+  const insforge = await getInsforge();
+  const { data, error } = await insforge.auth.getCurrentUser();
+  if (error) return null;
+  return normalizeUser(data?.user);
+}
+
+export async function signOut(): Promise<void> {
+  const insforge = await getInsforge();
+  await insforge.auth.signOut();
+}

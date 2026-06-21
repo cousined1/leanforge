@@ -1,5 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
+import { useAuth } from './AuthProvider';
 
 interface NavItem {
   label: string;
@@ -20,6 +21,7 @@ export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
+  const { user, loading: authLoading, signOut } = useAuth();
 
   useEffect(() => {
     fetch('/health')
@@ -82,6 +84,27 @@ export default function Header() {
             >
               JSON
             </a>
+
+            {/* Auth state */}
+            {!authLoading &&
+              (user ? (
+                <button
+                  type="button"
+                  onClick={() => void signOut()}
+                  title={user.email}
+                  className="text-white/60 hover:text-white transition-colors"
+                >
+                  Sign out
+                </button>
+              ) : (
+                <Link
+                  to="/sign-in"
+                  className="text-cyan-400 hover:text-cyan-300 transition-colors"
+                >
+                  Sign in
+                </Link>
+              ))}
+
             <span className="flex items-center gap-1.5 text-xs text-white/40">
               <span
                 aria-hidden
@@ -143,12 +166,22 @@ export default function Header() {
                 >
                   Contact
                 </Link>
-                <Link
-                  to="/sign-in"
-                  className="block px-3 py-2 text-sm rounded hover:bg-white/5"
-                >
-                  Sign In
-                </Link>
+                {!authLoading && user ? (
+                  <button
+                    type="button"
+                    onClick={() => void signOut()}
+                    className="block w-full text-left px-3 py-2 text-sm rounded hover:bg-white/5"
+                  >
+                    Sign out
+                  </button>
+                ) : (
+                  <Link
+                    to="/sign-in"
+                    className="block px-3 py-2 text-sm rounded hover:bg-white/5"
+                  >
+                    Sign In
+                  </Link>
+                )}
               </div>
             )}
           </div>
