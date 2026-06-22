@@ -38,6 +38,18 @@ const envSchema = z.object({
     .optional()
     .transform((value) => value === 'true'),
   TREND_POLL_CRON: z.string().default('0 */6 * * *'),
+  // InsForge (server-side JWT validation). Optional in dev — required for any
+  // /api/v1/auth/* route to function. The middleware throws a clear 500 if
+  // these are missing when a protected route is hit.
+  INSFORGE_URL: z.string().url().optional(),
+  INSFORGE_ANON_KEY: z.string().optional(),
+
+  // Stripe (Phase 2). Optional in Zod so the schema can be loaded without
+  // these set; billing routes throw a clear 500 if missing when hit.
+  STRIPE_SECRET_KEY: z.string().optional(),
+  STRIPE_WEBHOOK_SECRET: z.string().optional(),
+  STRIPE_PRICE_ID_STARTER: z.string().optional(),
+  STRIPE_PRICE_ID_GROWTH: z.string().optional(),
 });
 
 export type Environment = z.infer<typeof envSchema>;

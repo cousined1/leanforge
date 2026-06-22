@@ -7,6 +7,9 @@ import helmet from 'helmet';
 import compression from 'compression';
 import { config } from './config/env';
 import { apiRoutes } from './routes/apiRoutes';
+import { authRoutes } from './routes/authRoutes';
+import { billingRoutes } from './routes/billingRoutes';
+import { handleStripeWebhook } from './routes/billingWebhook';
 import { errorHandler } from './middleware/errorHandler';
 import { rateLimiter } from './middleware/rateLimiter';
 import { requestLogger } from './middleware/requestLogger';
@@ -57,6 +60,25 @@ app.use(
     credentials: true,
   })
 );
+
+// Stripe webhook MUST receive raw body for signature verification. Mount
+// before express.json() so the parser doesn't consume the body buffer.
+app.post(
+  '/api/v1/billing/webhook',
+  express.raw({ type: 'application/json' }),
+  async (req, res) => {
+    const sig = req.headers['stripe-signature'] as string;
+    try {
+      await handleStripeWebhook(req.body, sig);
+      res.json({ received: true });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'unknown';
+      console.error('Webhook error:', message);
+      res.status(400).send(`Webhook Error: ${message}`);
+    }
+  }
+);
+
 app.use(express.json({ limit: '1mb' }));
 
 // Rate limiting
@@ -107,6 +129,8 @@ app.get('/health/deep', async (_req, res) => {
 });
 
 // API routes
+app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/billing', billingRoutes);
 app.use('/api/v1', apiRoutes);
 
 // In production, serve the built frontend SPA

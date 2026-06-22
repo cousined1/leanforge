@@ -20,6 +20,8 @@ export const routes: Record<string, RouteDef> = {
   helpCenter: { path: '/help-center', label: 'Help Center', description: 'Find answers and get support for LeanForge.' },
   faq: { path: '/faq', label: 'FAQ', description: 'Frequently asked questions about LeanForge.' },
   signIn: { path: '/sign-in', label: 'Sign In' },
+  billingSuccess: { path: '/billing/success', label: 'Subscription Active' },
+  billingCanceled: { path: '/billing/canceled', label: 'Checkout Canceled' },
   privacy: { path: '/privacy', label: 'Privacy Policy' },
   terms: { path: '/terms', label: 'Terms of Service' },
   cookies: { path: '/cookies', label: 'Cookie Policy' },

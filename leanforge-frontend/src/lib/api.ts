@@ -8,6 +8,18 @@ const api = axios.create({
   timeout: 10000,
 });
 
+api.interceptors.request.use(async (config) => {
+  if (typeof window === 'undefined') return config;
+  const headers = config.headers as Record<string, string> | undefined;
+  if (headers?.Authorization) return config;
+  const { getInsForgeAccessToken } = await import('@/lib/insforgeToken');
+  const token = await getInsForgeAccessToken();
+  if (token && headers) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 export interface Keyword {
   id: string;
   term: string;
@@ -137,6 +149,51 @@ export async function getCategoryBySlug(slug: string) {
     data: Category & { keywords: Keyword[] };
   }>(`/categories/${slug}`);
   return data;
+}
+
+export interface MeResponse {
+  user: { id: string; email: string; role: string };
+  subscription: {
+    plan: 'free' | 'starter' | 'growth';
+    status: string | null;
+    currentPeriodEnd: string | null;
+  };
+}
+
+export async function getMe(token: string): Promise<MeResponse> {
+  const { data } = await api.get<MeResponse>('/auth/me', {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return data;
+}
+
+export type Plan = 'free' | 'starter' | 'growth';
+
+export interface PlanResponse {
+  plan: Plan;
+  status: string | null;
+  currentPeriodEnd: string | null;
+  limit: number;
+}
+
+export async function createCheckoutSession(
+  plan: 'starter' | 'growth'
+): Promise<{ url: string; sessionId: string }> {
+  const { data } = await api.post<{ url: string; sessionId: string }>(
+    '/billing/checkout',
+    { plan }
+  );
+  return data;
+}
+
+export async function createPortalSession(): Promise<{ url: string }> {
+  const { data } = await api.post<{ url: string }>('/billing/portal');
+  return data;
+}
+
+export async function getPlan(): Promise<PlanResponse> {
+  const { data } = await api.get<{ data: PlanResponse }>('/billing/plan');
+  return data.data;
 }
 
 export default api;

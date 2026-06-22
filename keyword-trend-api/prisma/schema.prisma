@@ -104,3 +104,20 @@ model TrendingTopic {
   @@index([category])
   @@index([velocity])
 }
+
+// Phase 1 — Billing-state mirror (auth identity lives in InsForge).
+// insforgeUserId is a logical FK — InsForge owns the canonical user identity.
+// If the InsForge user disappears we have an orphan row; acceptable because
+// Stripe (Phase 2) is the source of truth for billing state.
+model Subscription {
+  insforgeUserId   String    @id   // logical FK to InsForge user.id
+  stripeCustomerId String?   @unique
+  plan             String    @default("free")  // free | starter | growth
+  status           String?                     // active | past_due | canceled | null
+  currentPeriodEnd DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  @@index([stripeCustomerId])
+  @@index([plan])
+}
