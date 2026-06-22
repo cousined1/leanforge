@@ -1,6 +1,14 @@
 // src/config/env.ts
 import { z } from 'zod';
 
+// Backward-compatible aliases for environment variables previously set under
+// different names. Map them to the names Zod expects before validation, so
+// the live Railway env (which already has INSFORGE_BASE_URL) keeps working
+// without requiring a rename.
+if (process.env.INSFORGE_BASE_URL && !process.env.INSFORGE_URL) {
+  process.env.INSFORGE_URL = process.env.INSFORGE_BASE_URL;
+}
+
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   PORT: z.string().default('3001').transform(Number),
