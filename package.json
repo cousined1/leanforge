@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "build": "cd keyword-trend-api && npm install && npm run build",
-    "start": "cd keyword-trend-api && node dist/index.js",
+    "start": "cd keyword-trend-api && node --experimental-require-module dist/index.js",
     "postinstall": "cd keyword-trend-api && npm install"
   },
   "engines": {

@@ -1,70 +1,68 @@
 #!/usr/bin/env node
-// Postinstall patch: convert @insforge/shared-schemas ESM files to CJS
-// The package is pure ESM (type: module, exports only has "import").
-// Node 20 CJS cannot require() pure ESM. @insforge/sdk 1.x does:
-//   var import_shared_schemas = require("@insforge/shared-schemas");
-// This script converts each dist/*.js to dist/*.cjs and adds a "require"
-// condition to the package's exports field so require() resolves to CJS.
+// Postinstall patch: add a `require` condition to @insforge/shared-schemas'
+// package.json exports map. The package is pure ESM (no CJS exports), but the
+// @insforge/sdk 1.x CJS bundle (which gets installed by `^1.0.0`) does
+// `require("@insforge/shared-schemas")` at runtime. We rely on Node 20.17+'s
+// --experimental-require-module flag (passed in the start command) to require
+// the ESM file from our CJS server.
+//
+// Path resolution: try the keyword-trend-api/node_modules location first
+// (where the SDK and its deps are nested), then fall back to the workspace
+// root node_modules (in case npm hoists them).
 
 const fs = require('fs');
 const path = require('path');
 
-const pkgDir = path.resolve(__dirname, '..', '..', 'node_modules', '@insforge', 'shared-schemas');
-const distDir = path.join(pkgDir, 'dist');
-const pkgJson = path.join(pkgDir, 'package.json');
+const candidateRoots = [
+  path.join(__dirname, '..', 'node_modules'),
+  path.join(__dirname, '..', '..', 'node_modules'),
+];
 
-if (!fs.existsSync(distDir)) {
-  console.log('[patch-insforge-shared-schemas] dist/ not found, skipping (install may not be done yet)');
-  process.exit(0);
-}
-
-function esmToCjs(src) {
-  return src
-    .replace(/^import\s+\{([^}]+)\}\s+from\s+['"]([^'"]+)['"];?\s*$/gm,
-      (_, names, mod) => 'const {' + names + '} = require(' + JSON.stringify(mod) + ');')
-    .replace(/^import\s+(\w+)\s+from\s+['"]([^'"]+)['"];?\s*$/gm,
-      (_, name, mod) => {
-        const v = '__' + name + '_mod_' + Math.random().toString(36).slice(2, 8);
-        return 'const ' + v + ' = require(' + JSON.stringify(mod) + '); const ' + name + ' = ' + v + ' && ' + v + '.__esModule ? (' + v + '.default || ' + v + ') : ' + v + ';';
-      })
-    .replace(/^export\s+const\s+(\w+)\s*=/gm, 'module.exports.$1 =')
-    .replace(/^export\s+let\s+(\w+)\s*=/gm, 'module.exports.$1 =')
-    .replace(/^export\s+var\s+(\w+)\s*=/gm, 'module.exports.$1 =')
-    .replace(/^export\s+function\s+(\w+)/gm, 'module.exports.$1 = function $1')
-    .replace(/^export\s+class\s+(\w+)/gm, 'module.exports.$1 = class $1')
-    .replace(/^export\s+\{([^}]+)\};?\s*$/gm,
-      (_, names) => names.split(',').map(n => {
-        const trimmed = n.trim();
-        const [orig, alias] = trimmed.split(/\s+as\s+/).map(s => s.trim());
-        return 'module.exports.' + (alias || orig) + ' = ' + orig + ';';
-      }).join('\n'))
-    .replace(/^export\s+\*\s+from\s+['"]([^'"]+)['"];?\s*$/gm,
-      (_, mod) => {
-        const cjsMod = mod.replace(/\.js$/, '.cjs');
-        return 'Object.assign(module.exports, require(' + JSON.stringify(cjsMod) + '));';
-      })
-    .replace(/^export\s+default\s+/gm, 'module.exports.default = ');
-}
-
-const jsFiles = fs.readdirSync(distDir).filter(f =>
-  f.endsWith('.js') && !f.endsWith('.d.ts') && !f.endsWith('.js.map')
-);
-let count = 0;
-for (const f of jsFiles) {
-  const jsPath = path.join(distDir, f);
-  const cjsPath = path.join(distDir, f.replace(/\.js$/, '.cjs'));
-  const src = fs.readFileSync(jsPath, 'utf8');
-  fs.writeFileSync(cjsPath, esmToCjs(src));
-  count++;
-}
-
-if (fs.existsSync(pkgJson)) {
-  const pkg = JSON.parse(fs.readFileSync(pkgJson, 'utf8'));
-  if (pkg.exports && pkg.exports['.'] && !pkg.exports['.'].require) {
-    pkg.exports['.'].require = './dist/index.cjs';
-    fs.writeFileSync(pkgJson, JSON.stringify(pkg, null, 2) + '\n');
-    console.log('[patch-insforge-shared-schemas] added require condition to package.json exports');
+let pkgJsonPath = null;
+for (const root of candidateRoots) {
+  const candidate = path.join(
+    root,
+    '@insforge',
+    'shared-schemas',
+    'package.json'
+  );
+  if (fs.existsSync(candidate)) {
+    pkgJsonPath = candidate;
+    break;
   }
 }
 
-console.log('[patch-insforge-shared-schemas] converted ' + count + ' ESM files to CJS');
+if (!pkgJsonPath) {
+  console.log(
+    '[patch-insforge-shared-schemas] @insforge/shared-schemas not found, skipping'
+  );
+  process.exit(0);
+}
+
+const pkg = JSON.parse(fs.readFileSync(pkgJsonPath, 'utf8'));
+
+if (!pkg.exports || !pkg.exports['.']) {
+  console.log(
+    '[patch-insforge-shared-schemas] no exports["."] field, skipping'
+  );
+  process.exit(0);
+}
+
+if (pkg.exports['.'].require) {
+  console.log(
+    '[patch-insforge-shared-schemas] require condition already present, no change needed'
+  );
+  process.exit(0);
+}
+
+// Point require to the same ESM file as import. Combined with the start
+// command's `--experimental-require-module` flag, this lets CJS code
+// `require("@insforge/shared-schemas")` and have Node load the ESM bundle.
+pkg.exports['.'].require = pkg.exports['.'].import || './dist/index.js';
+
+fs.writeFileSync(pkgJsonPath, JSON.stringify(pkg, null, 2) + '\n');
+
+console.log(
+  '[patch-insforge-shared-schemas] added require condition: ' +
+    pkg.exports['.'].require
+);
