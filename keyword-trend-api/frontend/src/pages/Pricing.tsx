@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Seo } from '../components/Seo';
 import { Breadcrumbs, PageContainer } from '../components/Breadcrumbs';
-import { REGENT_PARTNER_URL } from '../lib/site';
 
 interface Tier {
   name: string;
