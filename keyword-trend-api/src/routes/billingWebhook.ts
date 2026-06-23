@@ -27,7 +27,7 @@ function planFromPriceId(priceId: string | undefined): 'free' | 'starter' | 'gro
   return 'free';
 }
 
-function getStripe(): Stripe {
+function getStripe() {
   if (!config.STRIPE_SECRET_KEY) {
     throw new Error('STRIPE_SECRET_KEY not configured');
   }
@@ -51,7 +51,7 @@ export async function handleStripeWebhook(
 
   switch (event.type) {
     case 'checkout.session.completed': {
-      const session = event.data.object as Stripe.Checkout.Session;
+      const session = event.data.object as any;
       const insforgeUserId = session.metadata?.insforgeUserId;
       if (insforgeUserId && session.customer) {
         const plan = (session.metadata?.plan as 'starter' | 'growth') ?? 'starter';
@@ -74,7 +74,7 @@ export async function handleStripeWebhook(
     }
 
     case 'customer.subscription.updated': {
-      const sub = event.data.object as Stripe.Subscription;
+      const sub = event.data.object as any;
       const item = sub.items?.data?.[0];
       const priceId = item?.price?.id;
       const isActive = sub.status === 'active' || sub.status === 'trialing';
@@ -93,7 +93,7 @@ export async function handleStripeWebhook(
     }
 
     case 'customer.subscription.deleted': {
-      const sub = event.data.object as Stripe.Subscription;
+      const sub = event.data.object as any;
       await prisma.subscription.updateMany({
         where: { stripeCustomerId: sub.customer as string },
         data: { plan: 'free', status: 'canceled', currentPeriodEnd: null },
@@ -102,7 +102,7 @@ export async function handleStripeWebhook(
     }
 
     case 'invoice.payment_failed': {
-      const invoice = event.data.object as Stripe.Invoice;
+      const invoice = event.data.object as any;
       console.warn(`[stripe] payment_failed for customer ${invoice.customer}`);
       break;
     }

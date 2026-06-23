@@ -18,7 +18,7 @@ export const PLAN_LIMITS: Record<string, number> = {
   growth: 10000,
 };
 
-function getStripe(): Stripe {
+function getStripe() {
   if (!config.STRIPE_SECRET_KEY) {
     throw new Error('STRIPE_SECRET_KEY not configured');
   }
