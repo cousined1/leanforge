@@ -31,7 +31,7 @@ const articles: Article[] = [
   },
   {
     title: 'Pricing & plans',
-    description: 'Free tier, Regent partner offer, and enterprise plans.',
+    description: 'Free, Starter, and Growth plans, plus partner and enterprise options.',
     href: '/pricing',
   },
   {

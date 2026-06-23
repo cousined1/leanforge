@@ -19,15 +19,43 @@ const tiers: Tier[] = [
     name: 'Free',
     price: '$0',
     period: '/month',
-    description: 'Browse trending keywords and category insights at no cost during MVP.',
+    description: 'Browse keyword trends and category insights at no cost.',
     features: [
-      'Keyword trend browsing',
-      'Category and direction filters',
-      'Public API endpoints',
+      '100 API calls / 15 min',
+      '7-day trend history',
+      'Keyword and category browsing',
       'No credit card required',
     ],
     cta: 'Browse Keywords',
     ctaHref: '/',
+  },
+  {
+    name: 'Starter',
+    price: '$29',
+    period: '/month',
+    description: 'For professionals who need deeper, sustained keyword insights.',
+    features: [
+      '1,000 API calls / 15 min',
+      '90-day trend history',
+      'Category filtering and exports',
+      'Email support',
+    ],
+    cta: 'Get Started',
+    ctaHref: '/sign-in',
+  },
+  {
+    name: 'Growth',
+    price: '$99',
+    period: '/month',
+    description: 'For teams running keyword intelligence across products and clients.',
+    features: [
+      '10,000 API calls / 15 min',
+      '365-day trend history',
+      'Keyword comparison and leaderboards',
+      'Priority support',
+    ],
+    cta: 'Get Started',
+    ctaHref: '/sign-in',
     highlighted: true,
   },
   {
@@ -44,20 +72,6 @@ const tiers: Tier[] = [
     cta: 'Try SEO AI Regent',
     ctaHref: REGENT_PARTNER_URL,
   },
-  {
-    name: 'Enterprise',
-    price: 'Custom',
-    period: '',
-    description: 'Planning private datasets, custom SLAs, or dedicated support?',
-    features: [
-      'Custom integrations',
-      'Private data feeds',
-      'Roadmap collaboration',
-      'Commercial support',
-    ],
-    cta: 'Contact Us',
-    ctaHref: '/contact',
-  },
 ];
 
 export default function Pricing() {
@@ -65,7 +79,7 @@ export default function Pricing() {
     <>
       <Seo
         title="Pricing"
-        description="LeanForge pricing — free tier for browsing trends, Regent partner offer for on-page optimization, and enterprise plans for custom needs."
+        description="LeanForge pricing — a free tier plus Starter ($29/mo) and Growth ($99/mo) plans for higher limits and historical trend data. Enterprise options available."
         path="/pricing"
         jsonLd={{
           '@type': 'WebPage',
@@ -80,12 +94,12 @@ export default function Pricing() {
             Simple, <span className="gradient-text">Transparent Pricing</span>
           </h1>
           <p className="text-white/50 text-sm sm:text-base">
-            LeanForge is free during MVP. Paid partner options are clearly labeled.
+            Start free, upgrade as you scale. Paid plans unlock higher limits and historical data.
           </p>
         </section>
 
         <section>
-          <div className="grid gap-6 md:grid-cols-3 max-w-5xl mx-auto">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 max-w-6xl mx-auto">
             {tiers.map((tier) => (
               <div
                 key={tier.name}
@@ -135,13 +149,13 @@ export default function Pricing() {
         </section>
 
         <section className="text-center max-w-2xl mx-auto space-y-4">
-          <h2 className="text-xl font-bold">Questions about pricing?</h2>
+          <h2 className="text-xl font-bold">Need an enterprise plan?</h2>
           <p className="text-white/50 text-sm">
-            Check our{' '}
+            For custom limits, private datasets, or an SLA, check our{' '}
             <Link to="/faq" className="text-cyan-400 hover:underline">
               FAQ
             </Link>{' '}
-            for answers to common questions, or{' '}
+            or{' '}
             <Link to="/contact" className="text-cyan-400 hover:underline">
               contact our team
             </Link>

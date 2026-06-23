@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { Seo } from '../components/Seo';
 import { Breadcrumbs, PageContainer } from '../components/Breadcrumbs';
 
@@ -129,7 +130,11 @@ export default function ApiDocs() {
             headers include <code className="text-xs font-mono">X-RateLimit-Limit</code>,{' '}
             <code className="text-xs font-mono">X-RateLimit-Remaining</code>, and{' '}
             <code className="text-xs font-mono">X-RateLimit-Reset</code>. If you need a
-            higher limit, see the Regent partner offer for usage-based plans.
+            higher limit, the{' '}
+            <Link to="/pricing" className="text-cyan-400 hover:underline">
+              Starter and Growth plans
+            </Link>{' '}
+            raise it to 1,000 and 10,000 requests per 15 minutes.
           </p>
         </section>
       </PageContainer>

@@ -9,32 +9,31 @@ interface PricingPlan {
 
 const plans: PricingPlan[] = [
   {
+    name: 'Free',
+    price: '$0',
+    description: 'Browse keyword trends and category insights at no cost.',
+    features: ['100 API calls / 15 min', '7-day trend history', 'Keyword & category browsing', 'No credit card required'],
+    cta: 'Browse Keywords',
+  },
+  {
     name: 'Starter',
-    price: '$49',
-    description: 'For freelancers and small teams exploring keyword trends.',
-    features: ['Up to 500 keyword lookups/mo', '7-day trend data', 'Basic scoring', 'Email support'],
+    price: '$29',
+    description: 'For professionals who need deeper, sustained keyword insights.',
+    features: ['1,000 API calls / 15 min', '90-day trend history', 'Category filtering & exports', 'Email support'],
     cta: 'Get Started',
   },
   {
-    name: 'Pro',
-    price: '$149',
-    description: 'For agencies and SEO teams who need real-time intelligence.',
+    name: 'Growth',
+    price: '$99',
+    description: 'For teams running keyword intelligence across products and clients.',
     features: [
-      'Up to 10,000 keyword lookups/mo',
-      '30-day trend data',
-      'Advanced scoring + velocity',
-      'API access',
+      '10,000 API calls / 15 min',
+      '365-day trend history',
+      'Keyword comparison & leaderboards',
       'Priority support',
     ],
     highlighted: true,
-    cta: 'Try Pro Free',
-  },
-  {
-    name: 'Enterprise',
-    price: 'Custom',
-    description: 'For platforms and large-scale keyword intelligence needs.',
-    features: ['Unlimited lookups', 'Historical trends (90d+)', 'Custom integrations', 'SLA guarantee', 'Dedicated support'],
-    cta: 'Contact Sales',
+    cta: 'Get Started',
   },
 ];
 

@@ -15,7 +15,7 @@ const faqs: FaqItem[] = [
   },
   {
     q: 'Is the API free to use?',
-    a: 'Yes — the public API endpoints are free during MVP. You get 100 requests per 15 minutes per IP. No API key required. For higher limits and historical data, see the Regent partner offer or contact us about enterprise plans.',
+    a: 'The Free tier is genuinely free: 100 requests per 15 minutes per IP, no API key required. Paid plans unlock more — Starter ($29/mo: 1,000 requests / 15 min, 90-day history) and Growth ($99/mo: 10,000 requests / 15 min, 365-day history). Need custom limits or private datasets? Contact us about an enterprise plan.',
   },
   {
     q: 'How often is the data refreshed?',
@@ -43,7 +43,7 @@ const faqs: FaqItem[] = [
   },
   {
     q: 'Do you have an SLA?',
-    a: 'SLA is available on enterprise plans. The free tier is provided as-is during MVP.',
+    a: 'SLA is available on enterprise plans. The Free tier is provided as-is.',
   },
   {
     q: 'Who operates LeanForge?',
